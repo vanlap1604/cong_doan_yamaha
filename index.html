@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; media-src 'self' data: https: blob:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self';" />
+  <title>Công Đoàn Công Ty TNHH Sản Xuất Phụ Tùng Yamaha Motor Việt Nam (YPMV)</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- SheetJS (xlsx) for Excel Import/Export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Sidebar / Top Navigation -->
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <span class="yamaha-badge">YPMV</span>
+        </div>
+        <div class="brand-text">
+          <h1>CÔNG ĐOÀN YPMV</h1>
+          <p>TNHH SX Phụ Tùng Yamaha Motor VN</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-label">DANH MỤC CHÍNH</div>
+        <a href="#overview" class="nav-link active" data-tab="overview">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Trang chủ Công Đoàn</span>
+        </a>
+        <a href="#members" class="nav-link" data-tab="members">
+          <i data-lucide="users"></i>
+          <span>1. Danh sách Công đoàn viên</span>
+          <span class="nav-badge" id="nav-member-count">0</span>
+        </a>
+        <a href="#plans" class="nav-link" data-tab="plans">
+          <i data-lucide="calendar-clock"></i>
+          <span>2. Kế hoạch sắp tới</span>
+        </a>
+        <a href="#policies" class="nav-link" data-tab="policies">
+          <i data-lucide="shield-check"></i>
+          <span>3. Chính sách Công đoàn</span>
+        </a>
+        <a href="#activities" class="nav-link" data-tab="activities">
+          <i data-lucide="sparkles"></i>
+          <span>4. Hoạt động Công đoàn</span>
+        </a>
+        <a href="#admins" class="nav-link" data-tab="admins" id="nav-admins-link">
+          <i data-lucide="key-round"></i>
+          <span>5. Đăng nhập & Quản trị</span>
+          <span class="nav-badge" id="nav-admin-count">1/10</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="support-box">
+          <div class="support-title">
+            <i data-lucide="server"></i> Trạng thái Máy chủ Host
+          </div>
+          <p id="server-mode-indicator">Đang kết nối máy chủ...</p>
+          <p>Hotline nội bộ: <strong>Ext. 1108 / 1109</strong></p>
+          <p>Email: <strong>congdoan@ypmv.yamaha-motor.com.vn</strong></p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-toggle" id="mobile-toggle" title="Mở menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div>
+            <span class="company-tag">YAMAHA MOTOR PARTS MANUFACTURING VIETNAM CO., LTD.</span>
+            <h2 id="page-title">Tổng quan Cổng thông tin Công đoàn YPMV</h2>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="auth-status-bar" id="auth-status-bar">
+            <span class="auth-badge guest" id="auth-badge-text">
+              <i data-lucide="lock"></i> Chế độ Xem (Chưa đăng nhập)
+            </span>
+            <button class="btn btn-primary btn-sm" id="btn-top-login" onclick="openLoginModal()">
+              <i data-lucide="log-in"></i> Đăng nhập Quản trị
+            </button>
+            <button class="btn btn-outline btn-sm admin-only" id="btn-top-admins" onclick="switchTab('admins')" style="display:none;">
+              <i data-lucide="shield"></i> TK Quản trị (<span id="top-admin-count">1</span>/10)
+            </button>
+            <button class="btn btn-outline btn-sm admin-only" id="btn-top-logout" onclick="logoutAdmin()" style="display:none;">
+              <i data-lucide="log-out"></i> Đăng xuất
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-area">
+        <!-- TAB 0: OVERVIEW / HOME -->
+        <section id="tab-overview" class="tab-panel active">
+          <div class="hero-banner">
+            <div class="hero-content">
+              <span class="hero-pill">ĐOÀN KẾT • DÂN CHỦ • KỶ CƯƠNG • ĐỔI MỚI • PHÁT TRIỂN</span>
+              <h2>Ban Chấp Hành Công Đoàn Cơ Sở<br>Công Ty TNHH Sản Xuất Phụ Tùng Yamaha Motor Việt Nam</h2>
+              <p>Chăm lo đời sống vật chất, tinh thần và bảo vệ quyền, lợi ích hợp pháp, chính đáng của toàn thể đoàn viên, công nhân viên lao động đại gia đình YPMV.</p>
+              <div class="hero-actions">
+                <a href="#members" class="btn btn-light" onclick="switchTab('members')">
+                  <i data-lucide="users"></i> Quản lý Đoàn viên & Excel
+                </a>
+                <a href="#plans" class="btn btn-outline-light" onclick="switchTab('plans')">
+                  <i data-lucide="calendar"></i> Xem Kế hoạch sắp tới
+                </a>
+              </div>
+            </div>
+            <div class="hero-stats-card">
+              <div class="hero-stat-item">
+                <span class="stat-label">Tổng số Đoàn viên</span>
+                <strong class="stat-val" id="hero-total-members">0</strong>
+                <span class="stat-sub">Đang sinh hoạt tại các bộ phận</span>
+              </div>
+              <div class="hero-stat-divider"></div>
+              <div class="hero-stat-grid">
+                <div>
+                  <span>Tổ/Bộ phận</span>
+                  <strong id="hero-total-depts">0</strong>
+                </div>
+                <div>
+                  <span>Kế hoạch sắp tới</span>
+                  <strong id="hero-total-plans">0</strong>
+                </div>
+                <div>
+                  <span>Chế độ phúc lợi</span>
+                  <strong id="hero-total-policies">0</strong>
+                </div>
+                <div>
+                  <span>Hoạt động nổi bật</span>
+                  <strong id="hero-total-activities">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Quick Navigation Portals -->
+          <div class="section-header">
+            <h3>4 Chuyên Mục Trọng Tâm Của Công Đoàn YPMV</h3>
+            <p>Truy cập nhanh các phân hệ quản lý danh sách bộ phận, kế hoạch, chính sách và phong trào công đoàn</p>
+          </div>
+
+          <div class="portal-grid">
+            <div class="portal-card" onclick="switchTab('members')">
+              <div class="portal-icon red">
+                <i data-lucide="users"></i>
+              </div>
+              <div class="portal-body">
+                <span class="portal-num">MỤC 01</span>
+                <h4>Danh sách Công đoàn viên theo Bộ phận</h4>
+                <p>Phân loại theo từng bộ phận (Đúc, Gia công, Lắp ráp, QC, Bảo trì, HCNS...). Nhập trực tiếp, tải lên từ file Excel hoặc xuất danh sách ra file Excel chuẩn.</p>
+                <span class="portal-cta">Mở danh sách & Excel <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+
+            <div class="portal-card" onclick="switchTab('plans')">
+              <div class="portal-icon blue">
+                <i data-lucide="calendar-clock"></i>
+              </div>
+              <div class="portal-body">
+                <span class="portal-num">MỤC 02</span>
+                <h4>Kế hoạch Sắp tới</h4>
+                <p>Lịch trình các chương trình đại hội, khám sức khỏe định kỳ, du lịch hè, hội thao Yamaha Cup, phát quà lễ Tết và đối thoại định kỳ.</p>
+                <span class="portal-cta">Xem lịch kế hoạch <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+
+            <div class="portal-card" onclick="switchTab('policies')">
+              <div class="portal-icon green">
+                <i data-lucide="shield-check"></i>
+              </div>
+              <div class="portal-body">
+                <span class="portal-num">MỤC 03</span>
+                <h4>Chính sách & Phúc lợi Công đoàn</h4>
+                <p>Quy định thăm hỏi ốm đau, hiếu hỷ, thai sản, hỗ trợ đoàn viên khó khăn, học bổng con công nhân viên và thỏa ước lao động tập thể YPMV.</p>
+                <span class="portal-cta">Tra cứu chế độ <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+
+            <div class="portal-card" onclick="switchTab('activities')">
+              <div class="portal-icon amber">
+                <i data-lucide="sparkles"></i>
+              </div>
+              <div class="portal-body">
+                <span class="portal-num">MỤC 04</span>
+                <h4>Hoạt động Công đoàn</h4>
+                <p>Tin tức, hình ảnh, video tiêu biểu về giải bóng đá YPMV, bữa cơm Công đoàn, Tết Sum Vầy, tôn vinh công nhân giỏi sáng kiến Kaizen.</p>
+                <span class="portal-cta">Khám phá hoạt động <i data-lucide="arrow-right"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Department Summary Mini Preview -->
+          <div class="card mt-24">
+            <div class="card-header-flex">
+              <div>
+                <h3>Thống kê nhanh Đoàn viên theo Bộ phận sản xuất & Khối văn phòng</h3>
+                <p class="text-muted">Bấm vào từng bộ phận để xem trong mục Công đoàn viên</p>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="switchTab('members')">
+                Đi tới mục Công đoàn viên <i data-lucide="chevron-right"></i>
+              </button>
+            </div>
+            <div class="dept-overview-grid" id="overview-dept-cards"></div>
+          </div>
+        </section>
+
+        <!-- TAB 1: DANH SÁCH CÔNG ĐOÀN VIÊN -->
+        <section id="tab-members" class="tab-panel">
+          <div class="card action-banner">
+            <div class="action-banner-info">
+              <span class="section-tag">MỤC 1 • QUẢN LÝ HỒ SƠ ĐOÀN VIÊN THEO BỘ PHẬN</span>
+              <h3>Danh sách Công đoàn viên Công ty TNHH SX Phụ Tùng Yamaha Motor VN</h3>
+              <p>Hỗ trợ <strong>nhập trực tiếp trên web</strong>, <strong>nhập hàng loạt từ file Excel (.xlsx, .xls, .csv)</strong> và <strong>xuất file Excel</strong> theo bộ phận đang chọn hoặc toàn công ty.</p>
+            </div>
+            <div class="action-banner-buttons">
+              <button class="btn btn-primary admin-only" onclick="openMemberModal()">
+                <i data-lucide="user-plus"></i> Nhập trực tiếp Đoàn viên
+              </button>
+
+              <label for="excel-upload-input" class="btn btn-excel-import admin-only">
+                <i data-lucide="upload"></i> Nhập từ file Excel
+              </label>
+              <input type="file" id="excel-upload-input" accept=".xlsx,.xls,.csv" hidden />
+
+              <button class="btn btn-excel-export admin-only" onclick="exportMembersToExcel()">
+                <i data-lucide="download"></i> Xuất file Excel
+              </button>
+
+              <button class="btn btn-outline admin-only" onclick="downloadExcelTemplate()" title="Tải file Excel mẫu chuẩn để nhập liệu">
+                <i data-lucide="file-down"></i> Tải file Excel mẫu
+              </button>
+
+              <button class="btn btn-primary guest-only" onclick="openLoginModal()">
+                <i data-lucide="lock"></i> Đăng nhập Quản trị để Xem danh sách & Nhập/Xuất Excel
+              </button>
+            </div>
+          </div>
+
+          <!-- Department Pills Filter / Counts -->
+          <div class="dept-tabs-container">
+            <div class="dept-tabs-header">
+              <span><i data-lucide="layers"></i> Danh sách 6 Sheet Bộ phận / Xưởng theo File Excel chuẩn YPMV:</span>
+              <button class="btn-link admin-only" onclick="openAddDeptModal()">+ Thêm Sheet / Bộ phận</button>
+            </div>
+            <div class="dept-pills" id="dept-pills"></div>
+          </div>
+
+          <!-- Chế độ chưa đăng nhập: Chỉ hiển thị số lượng công đoàn viên tại các bộ phận -->
+          <div class="card guest-only" id="members-guest-summary-card">
+            <div class="card-header-flex">
+              <div>
+                <h3>Thống kê Số lượng Công đoàn viên theo 6 Sheet Bộ phận (Tổng: 1.398 đoàn viên)</h3>
+                <p class="text-muted">Danh sách chi tiết công đoàn viên và tính năng Tải/Xuất file Excel 6 Sheet được bảo mật và chỉ hiển thị khi đã đăng nhập tài khoản Quản trị.</p>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="openLoginModal()">
+                <i data-lucide="key-round"></i> Đăng nhập Quản trị
+              </button>
+            </div>
+            <div class="dept-overview-grid" id="members-guest-dept-grid"></div>
+          </div>
+
+          <!-- Search and Filter Controls (Chỉ hiển thị khi đã đăng nhập Quản trị) -->
+          <div class="card table-card admin-only" id="members-admin-table-card">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <i data-lucide="search"></i>
+                <input type="text" id="member-search" placeholder="Tìm theo Employee ID (VD: W00140, S00028), Full Name, Department, Shop, Group..." oninput="renderMembersTable()" />
+              </div>
+              <div class="toolbar-filters">
+                <select id="filter-department-col" class="form-select" onchange="renderMembersTable()">
+                  <option value="ALL">Tất cả Department</option>
+                </select>
+                <select id="filter-shop" class="form-select" onchange="renderMembersTable()">
+                  <option value="ALL">Tất cả Shop</option>
+                </select>
+                <select id="filter-group" class="form-select" onchange="renderMembersTable()">
+                  <option value="ALL">Tất cả Group</option>
+                </select>
+                <button class="btn btn-ghost btn-sm admin-only" onclick="resetDefaultMembers()" title="Khôi phục danh sách gốc 1.398 đoàn viên (6 Sheet)">
+                  <i data-lucide="rotate-ccw"></i> Khôi phục gốc (1.398 ĐV)
+                </button>
+              </div>
+            </div>
+
+            <div class="table-meta-bar">
+              <div id="current-filter-summary">Đang hiển thị tất cả 6 Sheet</div>
+              <div class="table-meta-right">
+                <span class="excel-hint"><i data-lucide="file-spreadsheet"></i> Cấu trúc chuẩn 6 Sheet: <code>Prod 1</code>, <code>Prod 2</code>, <code>Prod 3</code>, <code>MT</code>, <code>Bảo an</code>, <code>Văn Phòng</code> • Cột: <code>STT</code>, <code>Employee ID</code>, <code>Full Name</code>, <code>Department</code>, <code>Shop</code>, <code>Group</code>, <code>Ký nhận</code></span>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" id="members-table">
+                <thead>
+                  <tr>
+                    <th style="width: 56px;">STT</th>
+                    <th style="width: 120px;">Employee ID</th>
+                    <th>Full Name</th>
+                    <th style="width: 115px;">Sheet (Xưởng)</th>
+                    <th>Department</th>
+                    <th>Shop</th>
+                    <th>Group</th>
+                    <th>Ký nhận</th>
+                    <th style="width: 100px; text-align: right;">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="members-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: KẾ HOẠCH SẮP TỚI -->
+        <section id="tab-plans" class="tab-panel">
+          <div class="card action-banner">
+            <div class="action-banner-info">
+              <span class="section-tag">MỤC 2 • CHƯƠNG TRÌNH CÔNG TÁC & SỰ KIỆN</span>
+              <h3>Kế hoạch Hoạt động Công đoàn Sắp tới</h3>
+              <p>Theo dõi lộ trình công tác quý/năm của Công đoàn Công ty TNHH Sản xuất Phụ tùng Yamaha Motor Việt Nam. Nhấn vào từng kế hoạch để đọc bài viết chi tiết.</p>
+            </div>
+            <div class="action-banner-buttons">
+              <button class="btn btn-primary admin-only" onclick="openPlanModal()">
+                <i data-lucide="calendar-plus"></i> Thêm Kế hoạch mới
+              </button>
+              <button class="btn btn-outline guest-only" onclick="openLoginModal()">
+                <i data-lucide="lock"></i> Đăng nhập để thêm Kế hoạch
+              </button>
+            </div>
+          </div>
+
+          <div class="plans-filter-bar">
+            <button class="chip active" data-plan-filter="ALL" onclick="setPlanFilter('ALL', this)">Tất cả kế hoạch</button>
+            <button class="chip" data-plan-filter="Chăm lo phúc lợi" onclick="setPlanFilter('Chăm lo phúc lợi', this)">Chăm lo phúc lợi</button>
+            <button class="chip" data-plan-filter="Văn hóa - Thể thao" onclick="setPlanFilter('Văn hóa - Thể thao', this)">Văn hóa - Thể thao</button>
+            <button class="chip" data-plan-filter="Đối thoại & Bảo vệ NLĐ" onclick="setPlanFilter('Đối thoại & Bảo vệ NLĐ', this)">Đối thoại & Bảo vệ NLĐ</button>
+            <button class="chip" data-plan-filter="Thi đua sản xuất" onclick="setPlanFilter('Thi đua sản xuất', this)">Thi đua sản xuất</button>
+          </div>
+
+          <div class="plans-grid" id="plans-container"></div>
+        </section>
+
+        <!-- TAB 3: CHÍNH SÁCH CÔNG ĐOÀN -->
+        <section id="tab-policies" class="tab-panel">
+          <div class="card action-banner">
+            <div class="action-banner-info">
+              <span class="section-tag">MỤC 3 • QUYỀN LỢI, CHẾ ĐỘ & THỎA ƯỚC LAO ĐỘNG TẬP THỂ</span>
+              <h3>Chính sách & Chế độ Phúc lợi Công đoàn YPMV</h3>
+              <p>Tổng hợp các mức chi chăm lo đoàn viên, chế độ hiếu hỷ, ốm đau, thai sản, trợ cấp khó khăn đột xuất. Nhấn vào từng chính sách để xem chi tiết.</p>
+            </div>
+            <div class="action-banner-buttons">
+              <button class="btn btn-primary admin-only" onclick="openPolicyModal()">
+                <i data-lucide="file-plus-2"></i> Thêm Chính sách / Biểu mức
+              </button>
+              <button class="btn btn-outline guest-only" onclick="openLoginModal()">
+                <i data-lucide="lock"></i> Đăng nhập để cập nhật Chính sách
+              </button>
+            </div>
+          </div>
+
+          <div class="policy-layout">
+            <div class="policy-cards-grid" id="policies-container"></div>
+
+            <div class="card policy-guide-card">
+              <h3><i data-lucide="check-circle-2"></i> Quy trình Thủ tục Đề nghị Hưởng Chế độ Công đoàn</h3>
+              <div class="steps-list">
+                <div class="step-item">
+                  <div class="step-badge">1</div>
+                  <div>
+                    <h4>Thông báo cho Tổ trưởng Công đoàn Bộ phận</h4>
+                    <p>Đoàn viên thuộc phân xưởng Đúc, Gia công, Lắp ráp, QC, Bảo trì, Kho vận hoặc Văn phòng báo trực tiếp cho Tổ trưởng Công đoàn bộ phận mình.</p>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-badge">2</div>
+                  <div>
+                    <h4>Cung cấp giấy tờ xác nhận hợp lệ</h4>
+                    <p>Giấy ra viện / Giấy chứng nhận nghỉ việc hưởng BHXH (ốm đau), Giấy đăng ký kết hôn (hỷ sự), Giấy khai sinh (sinh con) hoặc đơn đề nghị hỗ trợ khó khăn.</p>
+                  </div>
+                </div>
+                <div class="step-item">
+                  <div class="step-badge">3</div>
+                  <div>
+                    <h4>BCH Công đoàn YPMV xét duyệt & chi trả</h4>
+                    <p>Ban Chấp hành Công đoàn tổng hợp vào ngày 10 và 25 hàng tháng, chuyển khoản trực tiếp hoặc trao tận tay tại bộ phận.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: HOẠT ĐỘNG CÔNG ĐOÀN -->
+        <section id="tab-activities" class="tab-panel">
+          <div class="card action-banner">
+            <div class="action-banner-info">
+              <span class="section-tag">MỤC 4 • PHONG TRÀO ĐOÀN VIÊN & DẤU ẤN YPMV</span>
+              <h3>Hoạt động Công đoàn Tiêu biểu</h3>
+              <p>Những khoảnh khắc gắn kết, sẻ chia và sôi nổi của đoàn viên Công ty TNHH Sản xuất Phụ tùng Yamaha Motor Việt Nam. Nhấn vào bài viết để xem đầy đủ văn bản, hình ảnh và video.</p>
+            </div>
+            <div class="action-banner-buttons">
+              <button class="btn btn-primary admin-only" onclick="openActivityModal()">
+                <i data-lucide="plus-circle"></i> Đăng bài Hoạt động mới
+              </button>
+              <button class="btn btn-outline guest-only" onclick="openLoginModal()">
+                <i data-lucide="lock"></i> Đăng nhập để đăng Hoạt động
+              </button>
+            </div>
+          </div>
+
+          <div class="activities-grid" id="activities-container"></div>
+        </section>
+
+        <!-- TAB 5: ĐĂNG NHẬP & QUẢN LÝ TÀI KHOẢN QUẢN TRỊ (TỐI ĐA 10 TÀI KHOẢN) -->
+        <section id="tab-admins" class="tab-panel">
+          <div class="card action-banner">
+            <div class="action-banner-info">
+              <span class="section-tag">MỤC 5 • BẢO MẬT & PHÂN QUYỀN CẬP NHẬT DỮ LIỆU</span>
+              <h3>Đăng nhập & Quản lý Tài khoản Quản trị Công đoàn YPMV</h3>
+              <p>Chỉ thành viên Ban Chấp hành được cấp tài khoản quản trị mới có quyền thêm, sửa, xóa hoặc nhập file Excel. Hệ thống giới hạn <strong>tối đa 10 tài khoản quản trị</strong>.</p>
+            </div>
+            <div class="action-banner-buttons">
+              <button class="btn btn-primary admin-only" id="btn-add-admin" onclick="openAdminAccountModal()">
+                <i data-lucide="user-plus"></i> Tạo Tài khoản Quản trị mới
+              </button>
+              <button class="btn btn-primary guest-only" onclick="openLoginModal()">
+                <i data-lucide="log-in"></i> Đăng nhập ngay
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-panel-grid">
+            <!-- Khung đăng nhập trực tiếp tại trang -->
+            <div class="card">
+              <div id="admin-login-box-view">
+                <h3><i data-lucide="key-round"></i> Đăng nhập Hệ thống Quản trị</h3>
+                <p class="text-muted" style="margin: 6px 0 18px;">Đăng nhập để mở khóa chức năng cập nhật Danh sách đoàn viên (Excel/Trực tiếp), Kế hoạch, Chính sách và Hoạt động.</p>
+                <form onsubmit="handleLoginSubmit(event, 'inline')" class="login-inline-form">
+                  <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Tên đăng nhập <span class="req">*</span></label>
+                    <input type="text" id="inline-login-user" required placeholder="Nhập tên đăng nhập (VD: nguyenvanhop)" />
+                  </div>
+                  <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Mật khẩu <span class="req">*</span></label>
+                    <input type="password" id="inline-login-pass" required placeholder="Nhập mật khẩu..." />
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i data-lucide="unlock"></i> Đăng nhập Quản trị
+                  </button>
+                </form>
+              </div>
+
+              <div id="admin-logged-in-view" style="display: none;">
+                <div class="logged-in-card-box">
+                  <div class="logged-avatar">
+                    <i data-lucide="shield-check"></i>
+                  </div>
+                  <div>
+                    <span class="status-pill status-active">Đang phiên Quản trị viên</span>
+                    <h3 id="current-admin-fullname" style="margin-top: 6px;">Quản trị viên</h3>
+                    <p class="text-muted">Tài khoản: <strong id="current-admin-username">nguyenvanhop</strong> • Vai trò: <span id="current-admin-role">Quản trị chính</span></p>
+                  </div>
+                </div>
+                <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+                  <button class="btn btn-primary" onclick="editCurrentAdminAccount()">
+                    <i data-lucide="user-cog"></i> Sửa Tên / Mật khẩu / Chức vụ của tôi
+                  </button>
+                  <button class="btn btn-outline" onclick="switchTab('members')">
+                    <i data-lucide="users"></i> Cập nhật Đoàn viên & Excel
+                  </button>
+                  <button class="btn btn-outline" onclick="openAdminAccountModal()">
+                    <i data-lucide="user-plus"></i> Thêm Quản trị viên
+                  </button>
+                  <button class="btn btn-outline" onclick="logoutAdmin()" style="color: var(--yamaha-red); border-color: #fecdd3;">
+                    <i data-lucide="log-out"></i> Đăng xuất
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danh sách 10 tài khoản quản trị -->
+            <div class="card">
+              <div class="card-header-flex">
+                <div>
+                  <h3>Danh sách Tài khoản Quản trị (<span id="admin-slot-counter">1/10</span> tài khoản)</h3>
+                  <p class="text-muted">Giới hạn tối đa 10 tài khoản Ban Chấp hành Công đoàn được phép cập nhật dữ liệu</p>
+                </div>
+                <span class="limit-pill" id="admin-limit-badge">Còn trống 9/10 suất</span>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Tên đăng nhập</th>
+                      <th>Họ và tên cán bộ</th>
+                      <th>Bộ phận / Chức vụ CĐ</th>
+                      <th>Ngày tạo</th>
+                      <th style="text-align: right;">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admins-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL 1: ADD / EDIT MEMBER -->
+  <div class="modal-backdrop" id="member-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="member-modal-title">Thêm Công đoàn viên mới</h3>
+        <button class="btn-icon" onclick="closeModal('member-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="member-form" onsubmit="saveMemberForm(event)">
+        <input type="hidden" id="member-id" />
+        <div class="modal-body form-grid">
+          <div class="form-group">
+            <label>Employee ID (Mã nhân viên) <span class="req">*</span></label>
+            <input type="text" id="m-code" required placeholder="VD: W00140, S00028" />
+          </div>
+          <div class="form-group">
+            <label>Full Name (Họ và tên) <span class="req">*</span></label>
+            <input type="text" id="m-name" required placeholder="VD: Lê Thị Thủy" />
+          </div>
+          <div class="form-group">
+            <label>Sheet / Xưởng (6 Sheet) <span class="req">*</span></label>
+            <select id="m-dept" required onchange="onMemberSheetSelectChange()"></select>
+          </div>
+          <div class="form-group">
+            <label>Department (Phòng ban trong Sheet)</label>
+            <input type="text" id="m-department-col" placeholder="VD: Production 1, Production 2, Maintenance, General Affairs..." />
+          </div>
+          <div class="form-group">
+            <label>Shop (Xưởng / Chuyền)</label>
+            <input type="text" id="m-shop" placeholder="VD: K0-Finishing, After Heat treatment, Die Casting..." />
+          </div>
+          <div class="form-group">
+            <label>Group (Nhóm / Tổ - dùng cho Prod 2)</label>
+            <input type="text" id="m-group" placeholder="VD: Assy, Grinding, Gear Senban, Hot press..." />
+          </div>
+          <div class="form-group full">
+            <label>Ký nhận / Ghi chú</label>
+            <input type="text" id="m-note" placeholder="VD: Đã ký nhận / Ghi chú thêm..." />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('member-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu thông tin Đoàn viên</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD / EDIT PLAN -->
+  <div class="modal-backdrop" id="plan-modal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="plan-modal-title">Thêm Kế hoạch Công đoàn sắp tới</h3>
+        <button class="btn-icon" onclick="closeModal('plan-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="plan-form" onsubmit="savePlanForm(event)">
+        <input type="hidden" id="plan-id" />
+        <div class="modal-body form-grid">
+          <div class="form-group full">
+            <label>Tên chương trình / Kế hoạch <span class="req">*</span></label>
+            <input type="text" id="p-title" required placeholder="VD: Hội thao Công đoàn YPMV mở rộng..." />
+          </div>
+          <div class="form-group">
+            <label>Thời gian dự kiến <span class="req">*</span></label>
+            <input type="date" id="p-date" required />
+          </div>
+          <div class="form-group">
+            <label>Nhóm lĩnh vực</label>
+            <select id="p-category">
+              <option value="Chăm lo phúc lợi">Chăm lo phúc lợi</option>
+              <option value="Văn hóa - Thể thao">Văn hóa - Thể thao</option>
+              <option value="Đối thoại & Bảo vệ NLĐ">Đối thoại & Bảo vệ NLĐ</option>
+              <option value="Thi đua sản xuất">Thi đua sản xuất</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Địa điểm tổ chức</label>
+            <input type="text" id="p-location" placeholder="VD: Nhà ăn trung tâm YPMV / Sân vận động..." />
+          </div>
+          <div class="form-group">
+            <label>Bộ phận phụ trách / Tham gia</label>
+            <input type="text" id="p-participants" placeholder="VD: Toàn thể Công đoàn viên các phân xưởng" />
+          </div>
+          <div class="form-group">
+            <label>Trạng thái chuẩn bị</label>
+            <select id="p-status">
+              <option value="Đang triển khai">Đang triển khai</option>
+              <option value="Sắp diễn ra">Sắp diễn ra</option>
+              <option value="Đang lấy ý kiến">Đang lấy ý kiến</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Tóm tắt ngắn (hiển thị ngoài thẻ danh sách)</label>
+            <textarea id="p-desc" rows="2" placeholder="Nhập mô tả tóm tắt ngắn gọn..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Soạn thảo Nội dung Bài viết Chi tiết (Viết văn bản kết hợp chèn Ảnh, Video xen kẽ trực tiếp như Word)</label>
+            <div class="rich-editor-wrapper">
+              <div class="rich-toolbar">
+                <button type="button" class="rt-btn" onclick="execRichCmd('plan', 'bold')" title="In đậm"><b>B</b></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('plan', 'italic')" title="In nghiêng"><i>I</i></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('plan', 'underline')" title="Gạch chân"><u>U</u></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('plan', 'formatBlock', 'H3')" title="Tiêu đề mục">H3</button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('plan', 'insertUnorderedList')" title="Danh sách chấm">• Danh sách</button>
+                <span class="rt-sep"></span>
+                <label for="p-media-files" class="rt-btn rt-btn-media">
+                  <i data-lucide="image-plus"></i> Chèn Ảnh / Video từ máy
+                </label>
+                <input type="file" id="p-media-files" accept="image/*,video/*" multiple hidden onchange="insertMediaFilesIntoEditor(event, 'plan')" />
+                <button type="button" class="rt-btn rt-btn-media" onclick="promptMediaUrlIntoEditor('plan')">
+                  <i data-lucide="video"></i> Chèn Link Ảnh / Video / YouTube
+                </button>
+              </div>
+              <div id="p-rich-editor" class="rich-editor-area" contenteditable="true" data-placeholder="Gõ nội dung văn bản tại đây... Bạn có thể bấm nút 'Chèn Ảnh / Video' ở thanh công cụ phía trên để đặt hình ảnh, video xen kẽ giữa các đoạn văn bản..."></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('plan-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu Kế hoạch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADD / EDIT POLICY -->
+  <div class="modal-backdrop" id="policy-modal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="policy-modal-title">Thêm Chính sách / Mức phúc lợi Công đoàn</h3>
+        <button class="btn-icon" onclick="closeModal('policy-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="policy-form" onsubmit="savePolicyForm(event)">
+        <input type="hidden" id="policy-id" />
+        <div class="modal-body form-grid">
+          <div class="form-group full">
+            <label>Tên chính sách / Chế độ <span class="req">*</span></label>
+            <input type="text" id="pol-title" required placeholder="VD: Hỗ trợ kết hôn / Thăm hỏi ốm đau..." />
+          </div>
+          <div class="form-group">
+            <label>Mức hưởng / Kinh phí hỗ trợ <span class="req">*</span></label>
+            <input type="text" id="pol-amount" required placeholder="VD: 1.000.000 VNĐ / trường hợp" />
+          </div>
+          <div class="form-group">
+            <label>Nhóm chế độ</label>
+            <select id="pol-group">
+              <option value="Hiếu - Hỷ - Thăm hỏi">Hiếu - Hỷ - Thăm hỏi</option>
+              <option value="Phúc lợi Lễ - Tết">Phúc lợi Lễ - Tết</option>
+              <option value="Nữ công & Con đoàn viên">Nữ công & Con đoàn viên</option>
+              <option value="Bảo hộ & Điều kiện làm việc">Bảo hộ & Điều kiện làm việc</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Tóm tắt điều kiện áp dụng <span class="req">*</span></label>
+            <textarea id="pol-desc" rows="2" required placeholder="Mô tả điều kiện tóm tắt hiển thị ngoài thẻ..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Soạn thảo Nội dung Chính sách Chi tiết (Viết văn bản kết hợp chèn Ảnh biểu mẫu, Video hướng dẫn xen kẽ)</label>
+            <div class="rich-editor-wrapper">
+              <div class="rich-toolbar">
+                <button type="button" class="rt-btn" onclick="execRichCmd('policy', 'bold')" title="In đậm"><b>B</b></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('policy', 'italic')" title="In nghiêng"><i>I</i></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('policy', 'underline')" title="Gạch chân"><u>U</u></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('policy', 'formatBlock', 'H3')" title="Tiêu đề mục">H3</button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('policy', 'insertUnorderedList')" title="Danh sách chấm">• Danh sách</button>
+                <span class="rt-sep"></span>
+                <label for="pol-media-files" class="rt-btn rt-btn-media">
+                  <i data-lucide="image-plus"></i> Chèn Ảnh / Video từ máy
+                </label>
+                <input type="file" id="pol-media-files" accept="image/*,video/*" multiple hidden onchange="insertMediaFilesIntoEditor(event, 'policy')" />
+                <button type="button" class="rt-btn rt-btn-media" onclick="promptMediaUrlIntoEditor('policy')">
+                  <i data-lucide="video"></i> Chèn Link Ảnh / Video / YouTube
+                </button>
+              </div>
+              <div id="pol-rich-editor" class="rich-editor-area" contenteditable="true" data-placeholder="Gõ nội dung chi tiết chính sách, quy định hồ sơ và chèn trực tiếp hình ảnh văn bản, biểu mẫu hoặc video hướng dẫn vào bất kỳ dòng nào..."></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('policy-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu Chính sách</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: ADD / EDIT ACTIVITY -->
+  <div class="modal-backdrop" id="activity-modal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="activity-modal-title">Đăng bài Hoạt động Công đoàn mới</h3>
+        <button class="btn-icon" onclick="closeModal('activity-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="activity-form" onsubmit="saveActivityForm(event)">
+        <input type="hidden" id="activity-id" />
+        <div class="modal-body form-grid">
+          <div class="form-group full">
+            <label>Tiêu đề hoạt động <span class="req">*</span></label>
+            <input type="text" id="act-title" required placeholder="VD: Giải bóng đá nam/nữ Công đoàn YPMV..." />
+          </div>
+          <div class="form-group">
+            <label>Ngày tổ chức</label>
+            <input type="date" id="act-date" required />
+          </div>
+          <div class="form-group">
+            <label>Chuyên mục</label>
+            <select id="act-tag">
+              <option value="Văn nghệ - Thể thao">Văn nghệ - Thể thao</option>
+              <option value="Chăm lo Đời sống">Chăm lo Đời sống</option>
+              <option value="Thi đua Kaizen">Thi đua Kaizen</option>
+              <option value="Thiện nguyện - Xã hội">Thiện nguyện - Xã hội</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Số lượng đoàn viên tham gia / Điểm nhấn</label>
+            <input type="text" id="act-highlight" placeholder="VD: 850 đoàn viên tham gia • 12 đội thi đấu" />
+          </div>
+          <div class="form-group full">
+            <label>Tóm tắt ngắn ngoài trang danh sách <span class="req">*</span></label>
+            <textarea id="act-summary" rows="2" required placeholder="Nhập lời dẫn tóm tắt hiển thị trên thẻ bài viết..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Soạn thảo Bài viết Hỗn hợp (Viết văn bản xen kẽ Hình ảnh, Video trực tiếp như soạn thảo văn bản)</label>
+            <div class="rich-editor-wrapper">
+              <div class="rich-toolbar">
+                <button type="button" class="rt-btn" onclick="execRichCmd('activity', 'bold')" title="In đậm"><b>B</b></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('activity', 'italic')" title="In nghiêng"><i>I</i></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('activity', 'underline')" title="Gạch chân"><u>U</u></button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('activity', 'formatBlock', 'H3')" title="Tiêu đề mục">H3</button>
+                <button type="button" class="rt-btn" onclick="execRichCmd('activity', 'insertUnorderedList')" title="Danh sách chấm">• Danh sách</button>
+                <span class="rt-sep"></span>
+                <label for="act-media-files" class="rt-btn rt-btn-media">
+                  <i data-lucide="image-plus"></i> Chèn Ảnh / Video từ máy
+                </label>
+                <input type="file" id="act-media-files" accept="image/*,video/*" multiple hidden onchange="insertMediaFilesIntoEditor(event, 'activity')" />
+                <button type="button" class="rt-btn rt-btn-media" onclick="promptMediaUrlIntoEditor('activity')">
+                  <i data-lucide="video"></i> Chèn Link Ảnh / Video / YouTube
+                </button>
+              </div>
+              <div id="act-rich-editor" class="rich-editor-area" contenteditable="true" data-placeholder="Viết đoạn văn thứ nhất, sau đó bấm 'Chèn Ảnh / Video từ máy' để chèn ảnh minh họa ngay dưới đoạn văn, rồi tiếp tục gõ đoạn văn tiếp theo..."></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('activity-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu & Đăng bài viết</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 7: ARTICLE READER MODAL -->
+  <div class="modal-backdrop" id="article-reader-modal">
+    <div class="modal-dialog modal-reader">
+      <div class="modal-header">
+        <div class="reader-header-meta">
+          <span class="status-pill status-bch" id="reader-badge">Chuyên mục</span>
+          <span class="text-muted" id="reader-date" style="font-size: 13px;"></span>
+        </div>
+        <button class="btn-icon" onclick="closeModal('article-reader-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body reader-body">
+        <h2 id="reader-title" class="reader-title">Tiêu đề bài viết</h2>
+        <div id="reader-submeta" class="reader-submeta"></div>
+        <div id="reader-content" class="reader-article-content"></div>
+      </div>
+      <div class="modal-footer" id="reader-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('article-reader-modal')">Đóng cửa sổ đọc</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: LOGIN MODAL -->
+  <div class="modal-backdrop" id="login-modal">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3><i data-lucide="lock" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--yamaha-red);"></i> Đăng nhập Quản trị Công đoàn</h3>
+        <button class="btn-icon" onclick="closeModal('login-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="login-modal-form" onsubmit="handleLoginSubmit(event, 'modal')">
+        <div class="modal-body">
+          <p class="text-muted" style="margin-bottom: 14px;">Vui lòng đăng nhập tài khoản Quản trị Công đoàn YPMV để thêm, sửa, xóa hoặc nhập dữ liệu từ file Excel.</p>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label>Tên đăng nhập <span class="req">*</span></label>
+            <input type="text" id="modal-login-user" required placeholder="VD: nguyenvanhop" autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label>Mật khẩu <span class="req">*</span></label>
+            <input type="password" id="modal-login-pass" required placeholder="Nhập mật khẩu..." autocomplete="current-password" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('login-modal')">Đóng</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="log-in"></i> Đăng nhập</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 6: CREATE / EDIT ADMIN ACCOUNT (MAX 10) -->
+  <div class="modal-backdrop" id="admin-account-modal">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 id="admin-modal-title">Tạo Tài khoản Quản trị mới (Tối đa 10 TK)</h3>
+        <button class="btn-icon" onclick="closeModal('admin-account-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="admin-account-form" onsubmit="saveAdminAccountForm(event)">
+        <input type="hidden" id="adm-id" />
+        <div class="modal-body form-grid">
+          <div class="form-group">
+            <label>Tên đăng nhập <span class="req">*</span></label>
+            <input type="text" id="adm-username" required placeholder="VD: nguyenvanhop" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label id="adm-password-label">Mật khẩu <span class="req">*</span></label>
+            <input type="password" id="adm-password" minlength="6" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" autocomplete="new-password" />
+          </div>
+          <div class="form-group full">
+            <label>Họ và tên Cán bộ Quản trị <span class="req">*</span></label>
+            <input type="text" id="adm-fullname" required placeholder="VD: Nguyễn Văn Hợp" />
+          </div>
+          <div class="form-group full">
+            <label>Chức vụ / Bộ phận phụ trách <span class="req">*</span></label>
+            <input type="text" id="adm-role" required placeholder="VD: Chủ tịch Công đoàn / Ủy viên BCH - Phân xưởng Đúc" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('admin-account-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu Thông tin Tài khoản</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

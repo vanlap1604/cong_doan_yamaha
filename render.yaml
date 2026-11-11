@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: cong-doan-ypmv
+    runtime: node
+    plan: free
+    buildCommand: echo "No external build needed"
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20

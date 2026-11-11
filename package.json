@@ -1,0 +1,12 @@
+{
+  "name": "yamaha-union-portal",
+  "version": "1.0.0",
+  "description": "Cổng thông tin Công đoàn Công ty TNHH Sản xuất Phụ tùng Yamaha Motor Việt Nam (YPMV)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
