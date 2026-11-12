@@ -361,6 +361,11 @@ function getTotalMemberCount() {
   return members.length;
 }
 
+function closeMobileSidebar() {
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('sidebar-backdrop')?.classList.remove('open');
+}
+
 function setupNavigation() {
   document.querySelectorAll('.nav-link').forEach((link) => {
     link.addEventListener('click', (e) => {
@@ -373,7 +378,10 @@ function setupNavigation() {
   const mobileToggle = document.getElementById('mobile-toggle');
   if (mobileToggle) {
     mobileToggle.addEventListener('click', () => {
-      document.getElementById('sidebar').classList.toggle('open');
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      const isOpen = sb.classList.toggle('open');
+      if (bd) bd.classList.toggle('open', isOpen);
     });
   }
 }
@@ -391,12 +399,15 @@ function switchTab(tabName, deptFilter = null) {
   document.querySelectorAll('.nav-link').forEach((l) => {
     l.classList.toggle('active', l.getAttribute('data-tab') === tabName);
   });
+  document.querySelectorAll('.m-nav-item').forEach((m) => {
+    m.classList.toggle('active', m.getAttribute('data-tab') === tabName);
+  });
   document.querySelectorAll('.tab-panel').forEach((p) => {
     p.classList.toggle('active', p.id === `tab-${tabName}`);
   });
 
   document.getElementById('page-title').textContent = TAB_TITLES[tabName] || TAB_TITLES.overview;
-  document.getElementById('sidebar').classList.remove('open');
+  closeMobileSidebar();
 
   if (deptFilter !== null) {
     selectedDepartment = deptFilter;
@@ -423,28 +434,53 @@ function renderAll() {
 
 function renderOverviewStats() {
   const totalCount = getTotalMemberCount();
-  document.getElementById('nav-member-count').textContent = totalCount;
-  document.getElementById('hero-total-members').textContent = totalCount;
-  document.getElementById('hero-total-depts').textContent = departments.length;
-  document.getElementById('hero-total-plans').textContent = plans.length;
-  document.getElementById('hero-total-policies').textContent = policies.length;
-  document.getElementById('hero-total-activities').textContent = activities.length;
+  const navCountEl = document.getElementById('nav-member-count');
+  if (navCountEl) navCountEl.textContent = totalCount;
+  const heroTotalEl = document.getElementById('hero-total-members');
+  if (heroTotalEl) heroTotalEl.textContent = totalCount;
+
+  // Render Biểu đồ hình cột số lượng Công đoàn viên các bộ phận trong Hero Card
+  const chartEl = document.getElementById('hero-dept-bar-chart');
+  if (chartEl) {
+    const deptCounts = departments.map((dept) => ({
+      dept,
+      count: getDeptMemberCount(dept),
+    }));
+    const maxCount = Math.max(...deptCounts.map((d) => d.count), 1);
+
+    chartEl.innerHTML = deptCounts
+      .map(({ dept, count }) => {
+        const heightPct = Math.max(Math.round((count / maxCount) * 100), 10);
+        return `
+          <div class="hero-bar-col" onclick="switchTab('members', '${escapeHtml(dept)}')" title="${escapeHtml(dept)}: ${count} đoàn viên">
+            <span class="hero-bar-val">${count}</span>
+            <div class="hero-bar-track">
+              <div class="hero-bar-fill" style="height: ${heightPct}%;"></div>
+            </div>
+            <span class="hero-bar-label">${escapeHtml(dept)}</span>
+          </div>
+        `;
+      })
+      .join('');
+  }
 
   const container = document.getElementById('overview-dept-cards');
-  container.innerHTML = departments
-    .map((dept) => {
-      const count = getDeptMemberCount(dept);
-      return `
-        <div class="dept-mini-card" onclick="switchTab('members', '${escapeHtml(dept)}')">
-          <h4>${escapeHtml(dept)}</h4>
-          <div class="dept-count">
-            <span class="text-muted">Số đoàn viên</span>
-            <strong>${count}</strong>
+  if (container) {
+    container.innerHTML = departments
+      .map((dept) => {
+        const count = getDeptMemberCount(dept);
+        return `
+          <div class="dept-mini-card" onclick="switchTab('members', '${escapeHtml(dept)}')">
+            <h4>${escapeHtml(dept)}</h4>
+            <div class="dept-count">
+              <span class="text-muted">Số đoàn viên</span>
+              <strong>${count}</strong>
+            </div>
           </div>
-        </div>
-      `;
-    })
-    .join('');
+        `;
+      })
+      .join('');
+  }
 }
 
 // ============================================================================
@@ -1817,11 +1853,12 @@ function renderAuthUI() {
 
   if (badgeEl) {
     if (isLogged) {
+      badgeEl.style.display = '';
       badgeEl.className = 'auth-badge logged';
       badgeEl.innerHTML = `<i data-lucide="shield-check"></i> Quản trị: ${escapeHtml(currentAdmin.username)}`;
     } else {
-      badgeEl.className = 'auth-badge guest';
-      badgeEl.innerHTML = `<i data-lucide="lock"></i> Chế độ Xem (Chưa đăng nhập)`;
+      badgeEl.style.display = 'none';
+      badgeEl.innerHTML = '';
     }
   }
   if (btnLogin) {
@@ -2127,6 +2164,7 @@ function escapeHtml(str) {
 
 Object.assign(window, {
   switchTab,
+  closeMobileSidebar,
   selectDepartment,
   renderMembersTable,
   openMemberModal,

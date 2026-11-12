@@ -71,6 +71,8 @@
       </div>
     </aside>
 
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
     <!-- Main Content -->
     <div class="main-wrapper">
       <header class="topbar">
@@ -78,28 +80,54 @@
           <button class="mobile-toggle" id="mobile-toggle" title="Mở menu">
             <i data-lucide="menu"></i>
           </button>
-          <div>
+          <div class="topbar-title-box">
             <span class="company-tag">YAMAHA MOTOR PARTS MANUFACTURING VIETNAM CO., LTD.</span>
             <h2 id="page-title">Tổng quan Cổng thông tin Công đoàn YPMV</h2>
           </div>
         </div>
         <div class="topbar-right">
           <div class="auth-status-bar" id="auth-status-bar">
-            <span class="auth-badge guest" id="auth-badge-text">
-              <i data-lucide="lock"></i> Chế độ Xem (Chưa đăng nhập)
-            </span>
+            <span class="auth-badge logged admin-only" id="auth-badge-text" style="display:none;"></span>
             <button class="btn btn-primary btn-sm" id="btn-top-login" onclick="openLoginModal()">
-              <i data-lucide="log-in"></i> Đăng nhập Quản trị
+              <i data-lucide="log-in"></i> <span>Đăng nhập Quản trị</span>
             </button>
             <button class="btn btn-outline btn-sm admin-only" id="btn-top-admins" onclick="switchTab('admins')" style="display:none;">
-              <i data-lucide="shield"></i> TK Quản trị (<span id="top-admin-count">1</span>/10)
+              <i data-lucide="shield"></i> <span>TK Quản trị (<span id="top-admin-count">1</span>/10)</span>
             </button>
             <button class="btn btn-outline btn-sm admin-only" id="btn-top-logout" onclick="logoutAdmin()" style="display:none;">
-              <i data-lucide="log-out"></i> Đăng xuất
+              <i data-lucide="log-out"></i> <span>Đăng xuất</span>
             </button>
           </div>
         </div>
       </header>
+
+      <!-- Thanh điều hướng nhanh trên Điện thoại di động -->
+      <nav class="mobile-quick-nav" aria-label="Điều hướng di động">
+        <button type="button" class="m-nav-item active" data-tab="overview" onclick="switchTab('overview')">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Trang chủ</span>
+        </button>
+        <button type="button" class="m-nav-item" data-tab="members" onclick="switchTab('members')">
+          <i data-lucide="users"></i>
+          <span>Đoàn viên</span>
+        </button>
+        <button type="button" class="m-nav-item" data-tab="plans" onclick="switchTab('plans')">
+          <i data-lucide="calendar-clock"></i>
+          <span>Kế hoạch</span>
+        </button>
+        <button type="button" class="m-nav-item" data-tab="policies" onclick="switchTab('policies')">
+          <i data-lucide="shield-check"></i>
+          <span>Chính sách</span>
+        </button>
+        <button type="button" class="m-nav-item" data-tab="activities" onclick="switchTab('activities')">
+          <i data-lucide="sparkles"></i>
+          <span>Hoạt động</span>
+        </button>
+        <button type="button" class="m-nav-item" data-tab="admins" onclick="switchTab('admins')">
+          <i data-lucide="key-round"></i>
+          <span>Quản trị</span>
+        </button>
+      </nav>
 
       <main class="content-area">
         <!-- TAB 0: OVERVIEW / HOME -->
@@ -109,14 +137,6 @@
               <span class="hero-pill">ĐOÀN KẾT • DÂN CHỦ • KỶ CƯƠNG • ĐỔI MỚI • PHÁT TRIỂN</span>
               <h2>Ban Chấp Hành Công Đoàn Cơ Sở<br>Công Ty TNHH Sản Xuất Phụ Tùng Yamaha Motor Việt Nam</h2>
               <p>Chăm lo đời sống vật chất, tinh thần và bảo vệ quyền, lợi ích hợp pháp, chính đáng của toàn thể đoàn viên, công nhân viên lao động đại gia đình YPMV.</p>
-              <div class="hero-actions">
-                <a href="#members" class="btn btn-light" onclick="switchTab('members')">
-                  <i data-lucide="users"></i> Quản lý Đoàn viên & Excel
-                </a>
-                <a href="#plans" class="btn btn-outline-light" onclick="switchTab('plans')">
-                  <i data-lucide="calendar"></i> Xem Kế hoạch sắp tới
-                </a>
-              </div>
             </div>
             <div class="hero-stats-card">
               <div class="hero-stat-item">
@@ -125,23 +145,9 @@
                 <span class="stat-sub">Đang sinh hoạt tại các bộ phận</span>
               </div>
               <div class="hero-stat-divider"></div>
-              <div class="hero-stat-grid">
-                <div>
-                  <span>Tổ/Bộ phận</span>
-                  <strong id="hero-total-depts">0</strong>
-                </div>
-                <div>
-                  <span>Kế hoạch sắp tới</span>
-                  <strong id="hero-total-plans">0</strong>
-                </div>
-                <div>
-                  <span>Chế độ phúc lợi</span>
-                  <strong id="hero-total-policies">0</strong>
-                </div>
-                <div>
-                  <span>Hoạt động nổi bật</span>
-                  <strong id="hero-total-activities">0</strong>
-                </div>
+              <div class="hero-bar-chart-wrap">
+                <div class="hero-bar-chart-title">Biểu đồ Công đoàn viên các bộ phận</div>
+                <div class="hero-bar-chart" id="hero-dept-bar-chart"></div>
               </div>
             </div>
           </div>

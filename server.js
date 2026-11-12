@@ -52,13 +52,32 @@ function loadDefault6SheetsMembers() {
   try {
     if (fs.existsSync(default6File)) {
       const parsed = JSON.parse(fs.readFileSync(default6File, 'utf8'));
-      if (Array.isArray(parsed.departments) && Array.isArray(parsed.members)) {
+      if (Array.isArray(parsed.departments) && Array.isArray(parsed.members) && parsed.members.length > 0) {
         return parsed;
       }
     }
   } catch (e) {
     console.warn('Không đọc được default_members_6sheets.json:', e.message);
   }
+
+  // Dự phòng: Tự động trích xuất 1.398 đoàn viên từ app.js nếu người dùng chỉ tải 4 file chính lên GitHub
+  try {
+    const appJsPath = path.join(ROOT_DIR, 'app.js');
+    if (fs.existsSync(appJsPath)) {
+      const appCode = fs.readFileSync(appJsPath, 'utf8');
+      const deptMatch = appCode.match(/const DEFAULT_DEPARTMENTS = (\[[\s\S]*?\]);/);
+      const memMatch = appCode.match(/const DEFAULT_MEMBERS = (\[[\s\S]*?\]);\s*const DEFAULT_PLANS/);
+      if (deptMatch && memMatch) {
+        return {
+          departments: JSON.parse(deptMatch[1]),
+          members: JSON.parse(memMatch[1]),
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Không trích xuất được dữ liệu mặc định từ app.js:', e.message);
+  }
+
   return {
     departments: ['Prod 1', 'Prod 2', 'Prod 3', 'MT', 'Bảo an', 'Văn Phòng'],
     members: [],
@@ -168,6 +187,19 @@ function loadDatabase() {
     const db = JSON.parse(raw);
     if (!Array.isArray(db.admins) || db.admins.length === 0) {
       db.admins = getInitialDatabase().admins;
+    }
+    // Tự động nâng cấp nếu database.json trên Cloud vẫn đang chứa 13 đoàn viên mẫu cũ
+    if (
+      !Array.isArray(db.members) ||
+      db.members.length <= 15 ||
+      (Array.isArray(db.departments) && db.departments.includes('Phân xưởng Đúc (Casting)'))
+    ) {
+      const default6 = loadDefault6SheetsMembers();
+      if (default6.members.length > 100) {
+        db.departments = default6.departments;
+        db.members = default6.members;
+        fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+      }
     }
     return db;
   } catch (err) {
