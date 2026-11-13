@@ -19,7 +19,7 @@ const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
 
-const MAX_ADMIN_ACCOUNTS = 10;
+const MAX_ADMIN_ACCOUNTS = 30;
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 giờ
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MS = 5 * 60 * 1000; // 5 phút
@@ -82,6 +82,40 @@ function loadDefault6SheetsMembers() {
     departments: ['Prod 1', 'Prod 2', 'Prod 3', 'MT', 'Bảo an', 'Văn Phòng'],
     members: [],
   };
+}
+
+function getDefault22AdminsServer() {
+  const defaultHash = hashPasswordServer('123456789');
+  const list = [
+    { id: 'adm_01', username: 'nguyenhuysang', fullName: 'Nguyễn Huy Sáng', role: 'Chủ tịch Công đoàn (Người phê duyệt)', approvalRole: 'approver' },
+    { id: 'adm_root', username: 'nguyenvanhop', fullName: 'Nguyễn Văn Hợp', role: 'PCT Tài chính (Người kiểm tra 2)', approvalRole: 'checker2', isPrimary: true },
+    { id: 'adm_03', username: 'phivanmanh', fullName: 'Phí Văn Mạnh', role: 'PCT Hoạt động (Người kiểm tra 1)', approvalRole: 'checker1' },
+    { id: 'adm_04', username: 'nguyentrungkien', fullName: 'Nguyễn Trung Kiên', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_05', username: 'tranhuytien', fullName: 'Trần Huy Tiến', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_06', username: 'nguyenquangtrieu', fullName: 'Nguyễn Quang Triều', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_07', username: 'trankimtu', fullName: 'Trần Kim Tú', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_08', username: 'nguyenanhduc', fullName: 'Nguyễn Anh Đức', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_09', username: 'nguyenvanchien', fullName: 'Nguyễn Văn Chiến', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_10', username: 'dangmanhbinh', fullName: 'Đặng Mạnh Bính', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_11', username: 'nguyentienminh', fullName: 'Nguyễn Tiến Minh', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_12', username: 'doanhtuan', fullName: 'Đỗ Anh Tuấn', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_13', username: 'tahaiquan', fullName: 'Tạ Hải Quân', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_14', username: 'letiendung', fullName: 'Lê Tiến Dũng', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_15', username: 'nguyentienchinh', fullName: 'Nguyễn Tiến Chính', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_16', username: 'doanvantien', fullName: 'Đoàn Văn Tiến', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_17', username: 'dothihanh', fullName: 'Đỗ Thị Hạnh', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_18', username: 'duongthixuyen', fullName: 'Dương Thị Xuyến', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_19', username: 'dinhthithanhthao', fullName: 'Đinh Thị Thanh Thảo', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_20', username: 'nguyenthingoan', fullName: 'Nguyễn Thị Ngoan', role: 'Kế toán Công đoàn (Kế toán xác nhận)', approvalRole: 'accountant' },
+    { id: 'adm_21', username: 'domaiphuong', fullName: 'Đỗ Mai Phương', role: 'Ủy viên BCH (Người yêu cầu)', approvalRole: 'requester' },
+    { id: 'adm_22', username: 'nguyenlananh', fullName: 'Nguyễn Lan Anh', role: 'Kế toán Công đoàn (Kế toán xác nhận)', approvalRole: 'accountant' },
+  ];
+  return list.map((item) => ({
+    ...item,
+    passwordHash: defaultHash,
+    createdAt: '2026-01-01',
+    isPrimary: Boolean(item.isPrimary),
+  }));
 }
 
 function getInitialDatabase() {
@@ -159,18 +193,35 @@ function getInitialDatabase() {
       { id: 'act5', title: 'Chương Trình Du Lịch Nghỉ Mát Hè Sầm Sơn - Hạ Long Cho Đoàn Viên', date: '2026-07-05', tag: 'Văn nghệ - Thể thao', highlight: '3 đợt nghỉ mát 3 ngày 2 đêm • Đêm Gala Dinner', summary: 'Hoạt động nghỉ mát thường niên giúp công nhân viên tái tạo sức lao động, gắn kết gia đình YPMV với chương trình Team Building bãi biển sôi động.', gradient: 'linear-gradient(135deg, #0284c7, #0369a1)' },
       { id: 'act6', title: 'Ngày Hội Hiến Máu Tình Nguyện "Giọt Hồng Yamaha - Sẻ Chia Sự Sống"', date: '2026-05-19', tag: 'Thiện nguyện - Xã hội', highlight: '380 đơn vị máu hiến tặng Viện Huyết học TW', summary: 'Hàng trăm đoàn viên công đoàn các bộ phận nhiệt tình đăng ký hiến máu nhân đạo, lan tỏa nét đẹp văn hóa sẻ chia vì cộng đồng của tập thể YPMV.', gradient: 'linear-gradient(135deg, #be123c, #881337)' },
     ],
-    admins: [
-      {
-        id: 'adm_root',
-        username: 'nguyenvanhop',
-        passwordHash: hashPasswordServer('123456789'),
-        fullName: 'Nguyễn Văn Hợp (Quản trị viên chính)',
-        role: 'Chủ tịch / Thường trực BCH Công đoàn YPMV',
-        createdAt: '2026-01-01',
-        isPrimary: true,
-      },
-    ],
+    admins: getDefault22AdminsServer(),
+    welfareRequests: [],
   };
+}
+
+function syncMissingDefaultAdmins(db) {
+  let changed = false;
+  const defaults = getDefault22AdminsServer();
+  const existingMap = new Map(db.admins.map((a) => [a.username.toLowerCase(), a]));
+
+  // Đảm bảo các tài khoản có sẵn đều có approvalRole
+  db.admins.forEach((a) => {
+    const def = defaults.find((d) => d.username.toLowerCase() === a.username.toLowerCase());
+    if (!a.approvalRole) {
+      a.approvalRole = def ? def.approvalRole : 'requester';
+      changed = true;
+    }
+  });
+
+  // Bổ sung các thành viên còn thiếu trong 22 đồng chí BCH (nếu chưa đủ 30)
+  for (const def of defaults) {
+    if (db.admins.length >= MAX_ADMIN_ACCOUNTS) break;
+    if (!existingMap.has(def.username.toLowerCase())) {
+      db.admins.push(def);
+      existingMap.set(def.username.toLowerCase(), def);
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 function loadDatabase() {
@@ -185,8 +236,16 @@ function loadDatabase() {
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf8');
     const db = JSON.parse(raw);
+    let dirty = false;
     if (!Array.isArray(db.admins) || db.admins.length === 0) {
-      db.admins = getInitialDatabase().admins;
+      db.admins = getDefault22AdminsServer();
+      dirty = true;
+    } else if (syncMissingDefaultAdmins(db)) {
+      dirty = true;
+    }
+    if (!Array.isArray(db.welfareRequests)) {
+      db.welfareRequests = [];
+      dirty = true;
     }
     // Tự động nâng cấp nếu database.json trên Cloud vẫn đang chứa 13 đoàn viên mẫu cũ
     if (
@@ -198,8 +257,11 @@ function loadDatabase() {
       if (default6.members.length > 100) {
         db.departments = default6.departments;
         db.members = default6.members;
-        fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
+        dirty = true;
       }
+    }
+    if (dirty) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf8');
     }
     return db;
   } catch (err) {
@@ -222,6 +284,7 @@ function sanitizePublicAdmins(adminsList) {
     username: a.username,
     fullName: a.fullName,
     role: a.role,
+    approvalRole: a.approvalRole || 'requester',
     createdAt: a.createdAt,
     isPrimary: Boolean(a.isPrimary),
   }));
@@ -342,6 +405,7 @@ const server = http.createServer(async (req, res) => {
           policies: db.policies,
           activities: db.activities,
           admins: sanitizePublicAdmins(db.admins),
+          welfareRequests: auth ? (db.welfareRequests || []) : [],
         });
       }
 
@@ -396,6 +460,7 @@ const server = http.createServer(async (req, res) => {
             currentAdmin: sanitizePublicAdmins([matched])[0],
             members: db.members,
             admins: sanitizePublicAdmins(db.admins),
+            welfareRequests: db.welfareRequests || [],
           },
           {
             'Set-Cookie': `ypmv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`,
@@ -439,7 +504,7 @@ const server = http.createServer(async (req, res) => {
         });
       }
 
-      // 5. POST /api/admins/save - Thêm hoặc sửa tài khoản quản trị (Giới hạn tối đa 10 TK)
+      // 5. POST /api/admins/save - Thêm hoặc sửa tài khoản quản trị (Giới hạn tối đa 30 TK)
       if (pathname === '/api/admins/save' && method === 'POST') {
         const body = await readJsonBody(req);
         const editId = String(body.id || '').trim();
@@ -447,6 +512,8 @@ const server = http.createServer(async (req, res) => {
         const password = String(body.password || '');
         const fullName = String(body.fullName || '').trim();
         const role = String(body.role || 'Ủy viên BCH Công đoàn').trim();
+        const validApprovalRoles = ['requester', 'checker1', 'checker2', 'approver', 'accountant'];
+        const approvalRole = validApprovalRoles.includes(body.approvalRole) ? body.approvalRole : 'requester';
 
         if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
           return sendJson(res, 400, { error: 'Tên đăng nhập chỉ được chứa chữ cái không dấu, số và dấu gạch dưới!' });
@@ -471,6 +538,7 @@ const server = http.createServer(async (req, res) => {
             passwordHash: password ? hashPasswordServer(password) : db.admins[idx].passwordHash,
             fullName,
             role,
+            approvalRole: body.approvalRole ? approvalRole : (db.admins[idx].approvalRole || 'requester'),
           };
           saveDatabase();
           const currentUpdated = db.admins.find((a) => a.id === auth.admin.id);
@@ -494,6 +562,7 @@ const server = http.createServer(async (req, res) => {
           passwordHash: hashPasswordServer(password),
           fullName,
           role,
+          approvalRole,
           createdAt: new Date().toISOString().slice(0, 10),
           isPrimary: false,
         });
@@ -519,6 +588,158 @@ const server = http.createServer(async (req, res) => {
           ok: true,
           admins: sanitizePublicAdmins(db.admins),
         });
+      }
+
+      // 7. POST /api/welfare/create - Tạo đơn phúc lợi mới (Bất kỳ thành viên Ban quản trị nào)
+      if (pathname === '/api/welfare/create' && method === 'POST') {
+        const body = await readJsonBody(req);
+        const title = String(body.title || '').trim();
+        const policyGroup = String(body.policyGroup || 'Hiếu - Hỷ - Thăm hỏi').trim();
+        const beneficiary = String(body.beneficiary || '').trim();
+        const amount = String(body.amount || '').trim();
+        const reason = String(body.reason || '').trim();
+
+        if (!title || !beneficiary) {
+          return sendJson(res, 400, { error: 'Vui lòng nhập đầy đủ Nội dung đơn và Người/Bộ phận thụ hưởng!' });
+        }
+
+        if (!Array.isArray(db.welfareRequests)) db.welfareRequests = [];
+        const newReq = {
+          id: 'WLR-' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900),
+          title,
+          policyGroup,
+          beneficiary,
+          amount,
+          reason,
+          requesterId: auth.admin.id,
+          requesterUsername: auth.admin.username,
+          requesterName: auth.admin.fullName,
+          createdAt: new Date().toISOString(),
+          status: 'pending_checker1',
+          rejectedStep: '',
+          steps: {
+            checker1: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+            checker2: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+            approver: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+            accountant: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+            requesterConfirm: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+          },
+        };
+        db.welfareRequests.unshift(newReq);
+        saveDatabase();
+        return sendJson(res, 200, { ok: true, welfareRequests: db.welfareRequests });
+      }
+
+      // 8. POST /api/welfare/action - Duyệt / Từ chối / Xác nhận hoàn thành theo phân quyền 6 bước
+      if (pathname === '/api/welfare/action' && method === 'POST') {
+        const body = await readJsonBody(req);
+        const id = String(body.id || '').trim();
+        const decision = String(body.decision || '').trim(); // 'approve' | 'reject' | 'confirm'
+        const note = String(body.note || '').trim();
+
+        if (!Array.isArray(db.welfareRequests)) db.welfareRequests = [];
+        const reqItem = db.welfareRequests.find((w) => w.id === id);
+        if (!reqItem) return sendJson(res, 404, { error: 'Không tìm thấy đơn phúc lợi!' });
+
+        const userRole = auth.admin.approvalRole || 'requester';
+        const nowStr = new Date().toISOString();
+        const isRequesterOwner =
+          reqItem.requesterId === auth.admin.id ||
+          (reqItem.requesterUsername && reqItem.requesterUsername.toLowerCase() === auth.admin.username.toLowerCase());
+
+        if (decision === 'cancel') {
+          if (!isRequesterOwner) {
+            return sendJson(res, 403, { error: `Chỉ người tạo đơn (${reqItem.requesterName}) mới có quyền hủy đơn này!` });
+          }
+          if (!reqItem.status || !reqItem.status.startsWith('pending_')) {
+            return sendJson(res, 400, { error: 'Chỉ có thể hủy đơn khi đơn chưa hoàn thành!' });
+          }
+          if (!note) {
+            return sendJson(res, 400, { error: 'Vui lòng nhập chú thích / lý do hủy đơn!' });
+          }
+          reqItem.steps.requesterConfirm = {
+            decision: 'cancelled',
+            byName: auth.admin.fullName,
+            byUsername: auth.admin.username,
+            note,
+            at: nowStr,
+          };
+          reqItem.status = 'cancelled';
+          saveDatabase();
+          return sendJson(res, 200, { ok: true, welfareRequests: db.welfareRequests });
+        }
+
+        const stepOrder = {
+          pending_checker1: { key: 'checker1', role: 'checker1', label: 'Người kiểm tra 1 (PCT Hoạt động)', next: 'pending_checker2' },
+          pending_checker2: { key: 'checker2', role: 'checker2', label: 'Người kiểm tra 2 (PCT Tài chính)', next: 'pending_approver' },
+          pending_approver: { key: 'approver', role: 'approver', label: 'Người phê duyệt (Chủ tịch)', next: 'pending_accountant' },
+          pending_accountant: { key: 'accountant', role: 'accountant', label: 'Kế toán xác nhận', next: 'pending_confirm' },
+        };
+
+        if (reqItem.status === 'pending_confirm') {
+          if (!isRequesterOwner) {
+            return sendJson(res, 403, { error: `Chỉ người yêu cầu tạo đơn (${reqItem.requesterName}) mới được quyền xác nhận hoàn thành!` });
+          }
+          if (decision !== 'confirm' && decision !== 'approve') {
+            return sendJson(res, 400, { error: 'Hành động không hợp lệ ở bước xác nhận hoàn thành!' });
+          }
+          reqItem.steps.requesterConfirm = {
+            decision: 'confirmed',
+            byName: auth.admin.fullName,
+            byUsername: auth.admin.username,
+            note: note || 'Đã xác nhận hoàn thành',
+            at: nowStr,
+          };
+          reqItem.status = 'completed';
+          saveDatabase();
+          return sendJson(res, 200, { ok: true, welfareRequests: db.welfareRequests });
+        }
+
+        const currentRule = stepOrder[reqItem.status];
+        if (!currentRule) {
+          return sendJson(res, 400, { error: 'Đơn này đã kết thúc (Hoàn thành hoặc Đã từ chối), không thể thao tác tiếp!' });
+        }
+        if (userRole !== currentRule.role) {
+          return sendJson(res, 403, { error: `Bạn không có quyền thao tác bước "${currentRule.label}"!` });
+        }
+        if (decision !== 'approve' && decision !== 'reject') {
+          return sendJson(res, 400, { error: 'Lựa chọn duyệt phải là Đồng ý hoặc Không đồng ý!' });
+        }
+
+        reqItem.steps[currentRule.key] = {
+          decision: decision === 'approve' ? 'approved' : 'rejected',
+          byName: auth.admin.fullName,
+          byUsername: auth.admin.username,
+          note,
+          at: nowStr,
+        };
+        if (decision === 'approve') {
+          reqItem.status = currentRule.next;
+        } else {
+          reqItem.status = 'rejected';
+          reqItem.rejectedStep = currentRule.label;
+        }
+        saveDatabase();
+        return sendJson(res, 200, { ok: true, welfareRequests: db.welfareRequests });
+      }
+
+      // 9. POST /api/welfare/delete - Xóa đơn phúc lợi (Người tạo đơn khi chưa hoàn thành hoặc Quản trị chính)
+      if (pathname === '/api/welfare/delete' && method === 'POST') {
+        const body = await readJsonBody(req);
+        const id = String(body.id || '').trim();
+        if (!Array.isArray(db.welfareRequests)) db.welfareRequests = [];
+        const reqItem = db.welfareRequests.find((w) => w.id === id);
+        if (!reqItem) return sendJson(res, 404, { error: 'Không tìm thấy đơn phúc lợi!' });
+
+        const isOwner =
+          reqItem.requesterId === auth.admin.id ||
+          (reqItem.requesterUsername && reqItem.requesterUsername.toLowerCase() === auth.admin.username.toLowerCase());
+        if (!isOwner && !auth.admin.isPrimary) {
+          return sendJson(res, 403, { error: 'Chỉ người tạo đơn hoặc Quản trị chính mới có quyền xóa đơn này!' });
+        }
+        db.welfareRequests = db.welfareRequests.filter((w) => w.id !== id);
+        saveDatabase();
+        return sendJson(res, 200, { ok: true, welfareRequests: db.welfareRequests });
       }
 
       return sendJson(res, 404, { error: 'API không tồn tại' });

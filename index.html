@@ -55,7 +55,7 @@
         <a href="#admins" class="nav-link" data-tab="admins" id="nav-admins-link">
           <i data-lucide="key-round"></i>
           <span>5. Đăng nhập & Quản trị</span>
-          <span class="nav-badge" id="nav-admin-count">1/10</span>
+          <span class="nav-badge" id="nav-admin-count">22/30</span>
         </a>
       </nav>
 
@@ -92,7 +92,7 @@
               <i data-lucide="log-in"></i> <span>Đăng nhập Quản trị</span>
             </button>
             <button class="btn btn-outline btn-sm admin-only" id="btn-top-admins" onclick="switchTab('admins')" style="display:none;">
-              <i data-lucide="shield"></i> <span>TK Quản trị (<span id="top-admin-count">1</span>/10)</span>
+              <i data-lucide="shield"></i> <span>TK Quản trị (<span id="top-admin-count">22</span>/30)</span>
             </button>
             <button class="btn btn-outline btn-sm admin-only" id="btn-top-logout" onclick="logoutAdmin()" style="display:none;">
               <i data-lucide="log-out"></i> <span>Đăng xuất</span>
@@ -429,21 +429,73 @@
           <div class="activities-grid" id="activities-container"></div>
         </section>
 
-        <!-- TAB 5: ĐĂNG NHẬP & QUẢN LÝ TÀI KHOẢN QUẢN TRỊ (TỐI ĐA 10 TÀI KHOẢN) -->
+        <!-- TAB 5: ĐĂNG NHẬP & QUẢN LÝ TÀI KHOẢN QUẢN TRỊ (TỐI ĐA 30 TÀI KHOẢN) + ĐƠN PHÚC LỢI -->
         <section id="tab-admins" class="tab-panel">
           <div class="card action-banner">
             <div class="action-banner-info">
-              <span class="section-tag">MỤC 5 • BẢO MẬT & PHÂN QUYỀN CẬP NHẬT DỮ LIỆU</span>
-              <h3>Đăng nhập & Quản lý Tài khoản Quản trị Công đoàn YPMV</h3>
-              <p>Chỉ thành viên Ban Chấp hành được cấp tài khoản quản trị mới có quyền thêm, sửa, xóa hoặc nhập file Excel. Hệ thống giới hạn <strong>tối đa 10 tài khoản quản trị</strong>.</p>
+              <span class="section-tag">MỤC 5 • ĐƠN PHÚC LỢI, BẢO MẬT & PHÂN QUYỀN BAN QUẢN TRỊ</span>
+              <h3>Đơn Phúc Lợi & Quản lý Tài khoản Quản trị Công đoàn YPMV</h3>
+              <p>Thành viên Ban Quản trị tạo và duyệt đơn phúc lợi theo phân quyền 6 bước. Hệ thống hỗ trợ <strong>tối đa 30 tài khoản quản trị</strong>.</p>
             </div>
             <div class="action-banner-buttons">
-              <button class="btn btn-primary admin-only" id="btn-add-admin" onclick="openAdminAccountModal()">
-                <i data-lucide="user-plus"></i> Tạo Tài khoản Quản trị mới
+              <button class="btn btn-primary admin-only" onclick="openWelfareModal()">
+                <i data-lucide="file-plus-2"></i> Tạo Đơn Phúc Lợi Mới
+              </button>
+              <button class="btn btn-outline admin-only" id="btn-add-admin" onclick="openAdminAccountModal()">
+                <i data-lucide="user-plus"></i> Tạo TK Quản trị mới
               </button>
               <button class="btn btn-primary guest-only" onclick="openLoginModal()">
                 <i data-lucide="log-in"></i> Đăng nhập ngay
               </button>
+            </div>
+          </div>
+
+          <!-- PHẦN TẠO & DUYỆT ĐƠN PHÚC LỢI THEO PHÂN QUYỀN (BÊN TRÊN ĐANG PHIÊN QUẢN TRỊ & DANH SÁCH TK) -->
+          <div class="card welfare-section-card" style="margin-bottom: 20px;">
+            <div class="card-header-flex">
+              <div>
+                <h3><i data-lucide="clipboard-check" style="width:19px;height:19px;vertical-align:-3px;color:var(--yamaha-red);"></i> Tạo & Duyệt Đơn Phúc Lợi Công Đoàn (Quy trình 6 bước)</h3>
+                <p class="text-muted">Người yêu cầu tạo đơn → Kiểm tra 1 (PCT Hoạt động) → Kiểm tra 2 (PCT Tài chính) → Phê duyệt (Chủ tịch) → Kế toán xác nhận → Người yêu cầu xác nhận hoàn thành.</p>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="openWelfareMatrixModal()">
+                  <i data-lucide="table-2"></i> Xem bảng phân quyền
+                </button>
+                <button type="button" class="btn btn-primary btn-sm admin-only" onclick="openWelfareModal()">
+                  <i data-lucide="plus"></i> Tạo đơn yêu cầu
+                </button>
+              </div>
+            </div>
+
+            <!-- Thanh tóm tắt luồng phân quyền -->
+            <div class="welfare-role-legend">
+              <span><strong>1. Người yêu cầu:</strong> 22 Đ/c BCH</span>
+              <span><strong>2. Kiểm tra 1 (PCT Hoạt động):</strong> Đ/c Phí Văn Mạnh</span>
+              <span><strong>3. Kiểm tra 2 (PCT Tài chính):</strong> Đ/c Nguyễn Văn Hợp</span>
+              <span><strong>4. Phê duyệt (Chủ tịch):</strong> Đ/c Nguyễn Huy Sáng</span>
+              <span><strong>5. Kế toán xác nhận:</strong> Đ/c Nguyễn Lan Anh, Đ/c Nguyễn Thị Ngoan</span>
+              <span><strong>6. Xác nhận hoàn thành:</strong> Chính Người yêu cầu</span>
+            </div>
+
+            <div class="guest-only" style="padding: 18px; background: var(--slate-50); border-radius: 10px; border: 1px dashed var(--slate-200); text-align: center;">
+              <p class="text-muted" style="margin-bottom: 10px;">Vui lòng đăng nhập tài khoản Ban Quản trị để tạo yêu cầu phúc lợi, xem danh sách đơn và thực hiện duyệt theo phân quyền.</p>
+              <button class="btn btn-primary btn-sm" onclick="openLoginModal()">
+                <i data-lucide="log-in"></i> Đăng nhập Ban Quản trị
+              </button>
+            </div>
+
+            <div class="admin-only" id="welfare-admin-workspace">
+              <div class="welfare-filter-row">
+                <div class="welfare-filter-chips">
+                  <button type="button" class="chip active" data-wfilter="ALL" onclick="setWelfareFilter('ALL', this)">Tất cả đơn (<span id="w-count-all">0</span>)</button>
+                  <button type="button" class="chip" data-wfilter="MY_ACTION" onclick="setWelfareFilter('MY_ACTION', this)">Chờ tôi duyệt/xác nhận (<span id="w-count-my">0</span>)</button>
+                  <button type="button" class="chip" data-wfilter="IN_PROGRESS" onclick="setWelfareFilter('IN_PROGRESS', this)">Chưa hoàn thành (<span id="w-count-progress">0</span>)</button>
+                  <button type="button" class="chip" data-wfilter="COMPLETED" onclick="setWelfareFilter('COMPLETED', this)">Đã hoàn thành (<span id="w-count-done">0</span>)</button>
+                  <button type="button" class="chip" data-wfilter="CANCELLED" onclick="setWelfareFilter('CANCELLED', this)">Đã hủy (<span id="w-count-cancelled">0</span>)</button>
+                  <button type="button" class="chip" data-wfilter="REJECTED" onclick="setWelfareFilter('REJECTED', this)">Không đồng ý (<span id="w-count-reject">0</span>)</button>
+                </div>
+              </div>
+              <div id="welfare-requests-container" class="welfare-list"></div>
             </div>
           </div>
 
@@ -452,7 +504,7 @@
             <div class="card">
               <div id="admin-login-box-view">
                 <h3><i data-lucide="key-round"></i> Đăng nhập Hệ thống Quản trị</h3>
-                <p class="text-muted" style="margin: 6px 0 18px;">Đăng nhập để mở khóa chức năng cập nhật Danh sách đoàn viên (Excel/Trực tiếp), Kế hoạch, Chính sách và Hoạt động.</p>
+                <p class="text-muted" style="margin: 6px 0 18px;">Đăng nhập để mở khóa chức năng duyệt đơn phúc lợi, cập nhật Danh sách đoàn viên (Excel/Trực tiếp), Kế hoạch, Chính sách và Hoạt động.</p>
                 <form onsubmit="handleLoginSubmit(event, 'inline')" class="login-inline-form">
                   <div class="form-group" style="margin-bottom: 12px;">
                     <label>Tên đăng nhập <span class="req">*</span></label>
@@ -496,14 +548,14 @@
               </div>
             </div>
 
-            <!-- Danh sách 10 tài khoản quản trị -->
+            <!-- Danh sách 30 tài khoản quản trị -->
             <div class="card">
               <div class="card-header-flex">
                 <div>
-                  <h3>Danh sách Tài khoản Quản trị (<span id="admin-slot-counter">1/10</span> tài khoản)</h3>
-                  <p class="text-muted">Giới hạn tối đa 10 tài khoản Ban Chấp hành Công đoàn được phép cập nhật dữ liệu</p>
+                  <h3>Danh sách Tài khoản Quản trị (<span id="admin-slot-counter">22/30</span> tài khoản)</h3>
+                  <p class="text-muted">Giới hạn tối đa 30 tài khoản Ban Chấp hành Công đoàn được phép tạo đơn, duyệt đơn và cập nhật dữ liệu</p>
                 </div>
-                <span class="limit-pill" id="admin-limit-badge">Còn trống 9/10 suất</span>
+                <span class="limit-pill" id="admin-limit-badge">Còn trống 8/30 suất</span>
               </div>
 
               <div class="table-responsive">
@@ -513,7 +565,7 @@
                       <th>STT</th>
                       <th>Tên đăng nhập</th>
                       <th>Họ và tên cán bộ</th>
-                      <th>Bộ phận / Chức vụ CĐ</th>
+                      <th>Chức vụ & Quyền duyệt đơn</th>
                       <th>Ngày tạo</th>
                       <th style="text-align: right;">Thao tác</th>
                     </tr>
@@ -826,11 +878,11 @@
     </div>
   </div>
 
-  <!-- MODAL 6: CREATE / EDIT ADMIN ACCOUNT (MAX 10) -->
+  <!-- MODAL 6: CREATE / EDIT ADMIN ACCOUNT (MAX 30) -->
   <div class="modal-backdrop" id="admin-account-modal">
-    <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-dialog" style="max-width: 540px;">
       <div class="modal-header">
-        <h3 id="admin-modal-title">Tạo Tài khoản Quản trị mới (Tối đa 10 TK)</h3>
+        <h3 id="admin-modal-title">Tạo Tài khoản Quản trị mới (Tối đa 30 TK)</h3>
         <button class="btn-icon" onclick="closeModal('admin-account-modal')"><i data-lucide="x"></i></button>
       </div>
       <form id="admin-account-form" onsubmit="saveAdminAccountForm(event)">
@@ -852,12 +904,97 @@
             <label>Chức vụ / Bộ phận phụ trách <span class="req">*</span></label>
             <input type="text" id="adm-role" required placeholder="VD: Chủ tịch Công đoàn / Ủy viên BCH - Phân xưởng Đúc" />
           </div>
+          <div class="form-group full">
+            <label>Phân quyền Duyệt Đơn Phúc Lợi <span class="req">*</span></label>
+            <select id="adm-approval-role">
+              <option value="requester">Người yêu cầu (Tạo đơn & Xác nhận hoàn thành)</option>
+              <option value="checker1">Người kiểm tra 1 (PCT Hoạt động)</option>
+              <option value="checker2">Người kiểm tra 2 (PCT Tài chính)</option>
+              <option value="approver">Người phê duyệt (Chủ tịch)</option>
+              <option value="accountant">Kế toán xác nhận (Kế toán Công đoàn)</option>
+            </select>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" onclick="closeModal('admin-account-modal')">Hủy</button>
           <button type="submit" class="btn btn-primary">Lưu Thông tin Tài khoản</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL 8: CREATE WELFARE REQUEST -->
+  <div class="modal-backdrop" id="welfare-create-modal">
+    <div class="modal-dialog" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3><i data-lucide="file-plus-2" style="width:18px;height:18px;vertical-align:-3px;color:var(--yamaha-red);"></i> Tạo Đơn Yêu Cầu Phúc Lợi Công Đoàn</h3>
+        <button class="btn-icon" onclick="closeModal('welfare-create-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="welfare-create-form" onsubmit="saveWelfareRequestForm(event)">
+        <div class="modal-body form-grid">
+          <div class="form-group full">
+            <label>Tiêu đề / Nội dung yêu cầu phúc lợi <span class="req">*</span></label>
+            <input type="text" id="w-title" required placeholder="VD: Đề nghị chi thăm hỏi ốm đau / Hiếu hỷ / Sinh con..." />
+          </div>
+          <div class="form-group">
+            <label>Nhóm chế độ phúc lợi</label>
+            <select id="w-policy-group">
+              <option value="Hiếu - Hỷ - Thăm hỏi">Hiếu - Hỷ - Thăm hỏi</option>
+              <option value="Nữ công & Con đoàn viên">Nữ công & Con đoàn viên</option>
+              <option value="Phúc lợi Lễ - Tết">Phúc lợi Lễ - Tết</option>
+              <option value="Hoạt động Phong trào">Hoạt động Phong trào</option>
+              <option value="Hỗ trợ Khó khăn đột xuất">Hỗ trợ Khó khăn đột xuất</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Số tiền đề nghị (VNĐ) <span class="req">*</span></label>
+            <input type="text" id="w-amount" required placeholder="VD: 1.000.000 VNĐ" />
+          </div>
+          <div class="form-group full">
+            <label>Đoàn viên / Bộ phận thụ hưởng <span class="req">*</span></label>
+            <input type="text" id="w-beneficiary" required placeholder="VD: Nguyễn Văn A - W00123 - Prod 1" />
+          </div>
+          <div class="form-group full">
+            <label>Chi tiết lý do & Chứng từ đính kèm</label>
+            <textarea id="w-reason" rows="3" placeholder="Ghi rõ lý do, thời gian, giấy tờ kèm theo (nếu có)..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('welfare-create-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Gửi Đơn lên Kiểm tra 1</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 9: APPROVAL MATRIX TABLE (22 MEMBERS) -->
+  <div class="modal-backdrop" id="welfare-matrix-modal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>Bảng Phân Quyền Tạo & Duyệt Đơn Phúc Lợi Công Đoàn YPMV</h3>
+        <button class="btn-icon" onclick="closeModal('welfare-matrix-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Người yêu cầu</th>
+                <th>Người kiểm tra 1<br><small>(PCT Hoạt động)</small></th>
+                <th>Người kiểm tra 2<br><small>(PCT Tài chính)</small></th>
+                <th>Người phê duyệt<br><small>(Chủ tịch)</small></th>
+                <th>Kế toán xác nhận</th>
+                <th>Người yêu cầu<br><small>xác nhận hoàn thành</small></th>
+              </tr>
+            </thead>
+            <tbody id="welfare-matrix-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('welfare-matrix-modal')">Đóng</button>
+      </div>
     </div>
   </div>
 

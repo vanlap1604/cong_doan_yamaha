@@ -14,12 +14,13 @@ const STORAGE_KEYS = {
   POLICIES: 'ypmv_union_policies_v1',
   ACTIVITIES: 'ypmv_union_activities_v1',
   ADMINS: 'ypmv_union_admins_v1',
+  WELFARE_REQUESTS: 'ypmv_union_welfare_requests_v1',
   SESSION: 'ypmv_union_active_session_v1',
   LOGIN_GUARD: 'ypmv_union_login_guard_v1',
   SERVER_TOKEN: 'ypmv_union_server_token_v1',
 };
 
-const MAX_ADMIN_ACCOUNTS = 10;
+const MAX_ADMIN_ACCOUNTS = 30;
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000;
@@ -165,15 +166,28 @@ function sanitizeExcelCellText(val) {
 }
 
 const DEFAULT_ADMINS = [
-  {
-    id: 'adm_root',
-    username: 'nguyenvanhop',
-    passwordHash: hashPasswordSync('123456789'),
-    fullName: 'Nguyễn Văn Hợp (Quản trị viên chính)',
-    role: 'Chủ tịch / Thường trực BCH Công đoàn YPMV',
-    createdAt: '2026-01-01',
-    isPrimary: true,
-  },
+  { id: 'adm_01', username: 'nguyenhuysang', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Huy Sáng', role: 'Chủ tịch Công đoàn (Người phê duyệt)', approvalRole: 'approver', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_root', username: 'nguyenvanhop', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Văn Hợp', role: 'PCT Tài chính (Người kiểm tra 2)', approvalRole: 'checker2', createdAt: '2026-01-01', isPrimary: true },
+  { id: 'adm_03', username: 'phivanmanh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Phí Văn Mạnh', role: 'PCT Hoạt động (Người kiểm tra 1)', approvalRole: 'checker1', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_04', username: 'nguyentrungkien', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Trung Kiên', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_05', username: 'tranhuytien', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Trần Huy Tiến', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_06', username: 'nguyenquangtrieu', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Quang Triều', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_07', username: 'trankimtu', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Trần Kim Tú', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_08', username: 'nguyenanhduc', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Anh Đức', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_09', username: 'nguyenvanchien', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Văn Chiến', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_10', username: 'dangmanhbinh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đặng Mạnh Bính', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_11', username: 'nguyentienminh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Tiến Minh', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_12', username: 'doanhtuan', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đỗ Anh Tuấn', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_13', username: 'tahaiquan', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Tạ Hải Quân', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_14', username: 'letiendung', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Lê Tiến Dũng', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_15', username: 'nguyentienchinh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Tiến Chính', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_16', username: 'doanvantien', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đoàn Văn Tiến', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_17', username: 'dothihanh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đỗ Thị Hạnh', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_18', username: 'duongthixuyen', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Dương Thị Xuyến', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_19', username: 'dinhthithanhthao', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đinh Thị Thanh Thảo', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_20', username: 'nguyenthingoan', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Thị Ngoan', role: 'Kế toán Công đoàn', approvalRole: 'accountant', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_21', username: 'domaiphuong', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Đỗ Mai Phương', role: 'Ủy viên BCH Công đoàn', approvalRole: 'requester', createdAt: '2026-01-01', isPrimary: false },
+  { id: 'adm_22', username: 'nguyenlananh', passwordHash: hashPasswordSync('123456789'), fullName: 'Đ/c Nguyễn Lan Anh', role: 'Kế toán Công đoàn', approvalRole: 'accountant', createdAt: '2026-01-01', isPrimary: false },
 ];
 
 const DEFAULT_DEPARTMENTS = ["Prod 1", "Prod 2", "Prod 3", "MT", "Bảo an", "Văn Phòng"];
@@ -219,9 +233,11 @@ let plans = [];
 let policies = [];
 let activities = [];
 let admins = [];
+let welfareRequests = [];
 let currentAdmin = null;
 let selectedDepartment = 'ALL';
 let selectedPlanCategory = 'ALL';
+let selectedWelfareFilter = 'ALL';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadAllData();
@@ -260,6 +276,7 @@ async function loadAllData() {
       policies = data.policies || [...DEFAULT_POLICIES];
       activities = data.activities || [...DEFAULT_ACTIVITIES];
       admins = data.admins || [];
+      welfareRequests = Array.isArray(data.welfareRequests) ? data.welfareRequests : [];
       currentAdmin = data.authenticated ? data.currentAdmin : null;
       if (modeEl) {
         modeEl.innerHTML = `<strong style="color:#4ade80;">● Đang chạy Host Server Bảo mật</strong>`;
@@ -281,14 +298,20 @@ async function loadAllData() {
   policies = JSON.parse(localStorage.getItem(STORAGE_KEYS.POLICIES)) || [...DEFAULT_POLICIES];
   activities = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITIES)) || [...DEFAULT_ACTIVITIES];
   admins = JSON.parse(localStorage.getItem(STORAGE_KEYS.ADMINS)) || [...DEFAULT_ADMINS];
+  welfareRequests = JSON.parse(localStorage.getItem(STORAGE_KEYS.WELFARE_REQUESTS)) || [];
 
   admins = admins.map((a) => {
     const migrated = { ...a };
     if (migrated.username && migrated.username.toLowerCase() === 'duonglap') {
       migrated.id = 'adm_root';
       migrated.username = 'nguyenvanhop';
-      migrated.fullName = 'Nguyễn Văn Hợp (Quản trị viên chính)';
+      migrated.fullName = 'Đ/c Nguyễn Văn Hợp';
+      migrated.role = 'PCT Tài chính (Người kiểm tra 2)';
+      migrated.approvalRole = 'checker2';
       migrated.isPrimary = true;
+    }
+    if (!migrated.approvalRole) {
+      migrated.approvalRole = 'requester';
     }
     if (migrated.password && !migrated.passwordHash) {
       migrated.passwordHash = migrated.password.startsWith('sha256$')
@@ -299,8 +322,12 @@ async function loadAllData() {
     return migrated;
   });
 
-  const hasRoot = admins.some((a) => a.id === 'adm_root' || a.isPrimary);
-  if (!hasRoot) admins.unshift({ ...DEFAULT_ADMINS[0] });
+  DEFAULT_ADMINS.forEach((def) => {
+    const exists = admins.some((a) => a.username && a.username.toLowerCase() === def.username.toLowerCase());
+    if (!exists && admins.length < MAX_ADMIN_ACCOUNTS) {
+      admins.push({ ...def });
+    }
+  });
   if (admins.length > MAX_ADMIN_ACCOUNTS) admins = admins.slice(0, MAX_ADMIN_ACCOUNTS);
   localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(admins));
 
@@ -342,6 +369,7 @@ async function saveAllData() {
   localStorage.setItem(STORAGE_KEYS.DEPARTMENTS, JSON.stringify(departments));
   localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
   localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(plans));
+  localStorage.setItem(STORAGE_KEYS.WELFARE_REQUESTS, JSON.stringify(welfareRequests));
   localStorage.setItem(STORAGE_KEYS.POLICIES, JSON.stringify(policies));
   localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
   localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(admins));
@@ -427,6 +455,7 @@ function renderAll() {
   renderPolicies();
   renderActivities();
   renderAdminsSection();
+  renderWelfareRequests();
   if (window.lucide) {
     lucide.createIcons();
   }
@@ -1778,6 +1807,7 @@ async function handleLoginSubmit(e, source = 'modal') {
       currentAdmin = data.currentAdmin;
       members = Array.isArray(data.members) ? data.members : [];
       if (Array.isArray(data.admins)) admins = data.admins;
+      welfareRequests = Array.isArray(data.welfareRequests) ? data.welfareRequests : [];
       if (passEl) passEl.value = '';
       closeModal('login-modal');
       renderAll();
@@ -1831,6 +1861,7 @@ async function logoutAdmin() {
     serverToken = '';
     localStorage.removeItem(STORAGE_KEYS.SERVER_TOKEN);
     members = []; // Xóa danh sách chi tiết khỏi bộ nhớ trình duyệt khi đăng xuất
+    welfareRequests = [];
   }
   currentAdmin = null;
   localStorage.removeItem(STORAGE_KEYS.SESSION);
@@ -1872,6 +1903,19 @@ function renderAuthUI() {
   if (topAdminCount) topAdminCount.textContent = admins.length;
 }
 
+const APPROVAL_ROLE_LABELS = {
+  requester: 'Người yêu cầu',
+  checker1: 'Người kiểm tra 1 (PCT Hoạt động)',
+  checker2: 'Người kiểm tra 2 (PCT Tài chính)',
+  approver: 'Người phê duyệt (Chủ tịch)',
+  accountant: 'Kế toán xác nhận',
+};
+
+function getApprovalRoleBadgeHtml(approvalRole) {
+  const label = APPROVAL_ROLE_LABELS[approvalRole] || APPROVAL_ROLE_LABELS.requester;
+  return `<span class="approval-role-pill role-${escapeHtml(approvalRole || 'requester')}">${escapeHtml(label)}</span>`;
+}
+
 function renderAdminsSection() {
   const loginBox = document.getElementById('admin-login-box-view');
   const loggedBox = document.getElementById('admin-logged-in-view');
@@ -1882,7 +1926,9 @@ function renderAdminsSection() {
       loggedBox.style.display = 'block';
       document.getElementById('current-admin-fullname').textContent = currentAdmin.fullName;
       document.getElementById('current-admin-username').textContent = currentAdmin.username;
-      document.getElementById('current-admin-role').textContent = currentAdmin.role || 'Ban Chấp hành';
+      const roleText = currentAdmin.role || 'Ban Chấp hành';
+      const appRoleLabel = APPROVAL_ROLE_LABELS[currentAdmin.approvalRole] || 'Người yêu cầu';
+      document.getElementById('current-admin-role').textContent = `${roleText} • ${appRoleLabel}`;
     } else {
       loginBox.style.display = 'block';
       loggedBox.style.display = 'none';
@@ -1934,7 +1980,10 @@ function renderAdminsSection() {
           <td>${idx + 1}</td>
           <td><span class="emp-code">${escapeHtml(adm.username)}</span></td>
           <td><strong>${escapeHtml(adm.fullName)}</strong></td>
-          <td>${escapeHtml(adm.role || 'Ủy viên BCH')}</td>
+          <td>
+            <div>${escapeHtml(adm.role || 'Ủy viên BCH')}</div>
+            <div style="margin-top:4px;">${getApprovalRoleBadgeHtml(adm.approvalRole)}</div>
+          </td>
           <td>${escapeHtml(adm.createdAt || '-')}</td>
           <td style="text-align: right;">${actionHtml}</td>
         </tr>
@@ -1967,6 +2016,8 @@ function openAdminAccountModal(adminItem = null) {
     }
     document.getElementById('adm-fullname').value = adminItem.fullName || '';
     document.getElementById('adm-role').value = adminItem.role || '';
+    const appRoleSel = document.getElementById('adm-approval-role');
+    if (appRoleSel) appRoleSel.value = adminItem.approvalRole || 'requester';
   } else {
     if (admins.length >= MAX_ADMIN_ACCOUNTS) {
       showToast(`Hệ thống chỉ cho phép tạo tối đa ${MAX_ADMIN_ACCOUNTS} tài khoản quản trị!`);
@@ -2007,6 +2058,7 @@ async function saveAdminAccountForm(e) {
   const password = document.getElementById('adm-password').value;
   const fullName = document.getElementById('adm-fullname').value.trim();
   const role = document.getElementById('adm-role').value.trim() || 'Ủy viên BCH Công đoàn';
+  const approvalRole = document.getElementById('adm-approval-role')?.value || 'requester';
 
   if (isServerMode) {
     try {
@@ -2016,6 +2068,7 @@ async function saveAdminAccountForm(e) {
         password,
         fullName,
         role,
+        approvalRole,
       });
       admins = res.admins || admins;
       if (res.currentAdmin) currentAdmin = res.currentAdmin;
@@ -2054,6 +2107,7 @@ async function saveAdminAccountForm(e) {
         passwordHash: password ? hashPasswordSync(password) : admins[idx].passwordHash,
         fullName,
         role,
+        approvalRole,
       };
       delete updated.password;
       admins[idx] = updated;
@@ -2087,6 +2141,7 @@ async function saveAdminAccountForm(e) {
     passwordHash: hashPasswordSync(password),
     fullName,
     role,
+    approvalRole,
     createdAt: new Date().toISOString().slice(0, 10),
     isPrimary: false,
   });
@@ -2132,6 +2187,465 @@ async function deleteAdminAccount(id) {
   await saveAllData();
   renderAll();
   showToast(`Đã xóa tài khoản quản trị "${target.username}". Hiện có ${admins.length}/${MAX_ADMIN_ACCOUNTS} tài khoản.`);
+}
+
+// ============================================================================
+// 5.2 QUY TRÌNH TẠO & DUYỆT ĐƠN PHÚC LỢI 6 BƯỚC
+// ============================================================================
+
+const WELFARE_STATUS_META = {
+  pending_checker1: { label: 'Chưa hoàn thành • Chờ Kiểm tra 1 (PCT HĐ)', cls: 'pending' },
+  pending_checker2: { label: 'Chưa hoàn thành • Chờ Kiểm tra 2 (PCT TC)', cls: 'pending' },
+  pending_approver: { label: 'Chưa hoàn thành • Chờ Phê duyệt (Chủ tịch)', cls: 'pending' },
+  pending_accountant: { label: 'Chưa hoàn thành • Chờ Kế toán xác nhận', cls: 'pending' },
+  pending_confirm: { label: 'Chưa hoàn thành • Chờ Người YC xác nhận', cls: 'pending' },
+  completed: { label: 'Đã hoàn thành', cls: 'completed' },
+  cancelled: { label: 'Đã hủy đơn', cls: 'cancelled' },
+  rejected: { label: 'Không đồng ý / Từ chối', cls: 'rejected' },
+};
+
+function openWelfareModal() {
+  if (!requireAdminAuth('tạo đơn yêu cầu phúc lợi')) return;
+  document.getElementById('welfare-create-form')?.reset();
+  document.getElementById('welfare-create-modal')?.classList.add('open');
+}
+
+async function saveWelfareRequestForm(e) {
+  e.preventDefault();
+  if (!requireAdminAuth('gửi đơn yêu cầu phúc lợi')) return;
+
+  const title = document.getElementById('w-title').value.trim();
+  const policyGroup = document.getElementById('w-policy-group').value;
+  const amount = document.getElementById('w-amount').value.trim();
+  const beneficiary = document.getElementById('w-beneficiary').value.trim();
+  const reason = document.getElementById('w-reason').value.trim();
+
+  if (!title || !amount || !beneficiary) {
+    showToast('Vui lòng điền đầy đủ Tiêu đề, Số tiền và Đoàn viên thụ hưởng!');
+    return;
+  }
+
+  if (isServerMode) {
+    try {
+      const res = await apiRequest('/api/welfare/create', 'POST', {
+        title,
+        policyGroup,
+        beneficiary,
+        amount,
+        reason,
+      });
+      welfareRequests = res.welfareRequests || welfareRequests;
+      closeModal('welfare-create-modal');
+      renderWelfareRequests();
+      showToast('Đã tạo đơn phúc lợi và chuyển sang Bước 2 (Người kiểm tra 1)!');
+    } catch (err) {
+      showToast(err.message || 'Không thể tạo đơn phúc lợi!');
+    }
+    return;
+  }
+
+  const newReq = {
+    id: 'WLR-' + new Date().toISOString().slice(2, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900),
+    title,
+    policyGroup,
+    beneficiary,
+    amount,
+    reason,
+    requesterId: currentAdmin.id,
+    requesterUsername: currentAdmin.username,
+    requesterName: currentAdmin.fullName,
+    createdAt: new Date().toISOString(),
+    status: 'pending_checker1',
+    rejectedStep: '',
+    steps: {
+      checker1: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+      checker2: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+      approver: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+      accountant: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+      requesterConfirm: { decision: 'pending', byName: '', byUsername: '', note: '', at: '' },
+    },
+  };
+  welfareRequests.unshift(newReq);
+  await saveAllData();
+  closeModal('welfare-create-modal');
+  renderWelfareRequests();
+  showToast('Đã tạo đơn phúc lợi (Offline) và chuyển sang Bước 2!');
+}
+
+function setWelfareFilter(filter, btnEl) {
+  selectedWelfareFilter = filter;
+  document.querySelectorAll('.welfare-filter-chips .chip').forEach((btn) => {
+    btn.classList.toggle('active', btn === btnEl);
+  });
+  renderWelfareRequests();
+}
+
+function isMyTurnForWelfare(reqItem) {
+  if (!currentAdmin) return false;
+  const role = currentAdmin.approvalRole || 'requester';
+  if (reqItem.status === 'pending_checker1') return role === 'checker1';
+  if (reqItem.status === 'pending_checker2') return role === 'checker2';
+  if (reqItem.status === 'pending_approver') return role === 'approver';
+  if (reqItem.status === 'pending_accountant') return role === 'accountant';
+  if (reqItem.status === 'pending_confirm') {
+    return (
+      reqItem.requesterId === currentAdmin.id ||
+      (reqItem.requesterUsername && reqItem.requesterUsername.toLowerCase() === currentAdmin.username.toLowerCase())
+    );
+  }
+  return false;
+}
+
+function renderWelfareRequests() {
+  const container = document.getElementById('welfare-requests-container');
+  if (!container) return;
+
+  if (!currentAdmin) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const setCount = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(val);
+  };
+  setCount('w-count-all', welfareRequests.length);
+  setCount('w-count-my', welfareRequests.filter((w) => isMyTurnForWelfare(w)).length);
+  setCount('w-count-progress', welfareRequests.filter((w) => w.status && w.status.startsWith('pending_')).length);
+  setCount('w-count-done', welfareRequests.filter((w) => w.status === 'completed').length);
+  setCount('w-count-cancelled', welfareRequests.filter((w) => w.status === 'cancelled').length);
+  setCount('w-count-reject', welfareRequests.filter((w) => w.status === 'rejected').length);
+
+  let filtered = welfareRequests;
+  if (selectedWelfareFilter === 'MY_ACTION') {
+    filtered = welfareRequests.filter((w) => isMyTurnForWelfare(w));
+  } else if (selectedWelfareFilter === 'IN_PROGRESS') {
+    filtered = welfareRequests.filter((w) => w.status && w.status.startsWith('pending_'));
+  } else if (selectedWelfareFilter === 'COMPLETED') {
+    filtered = welfareRequests.filter((w) => w.status === 'completed');
+  } else if (selectedWelfareFilter === 'CANCELLED') {
+    filtered = welfareRequests.filter((w) => w.status === 'cancelled');
+  } else if (selectedWelfareFilter === 'REJECTED') {
+    filtered = welfareRequests.filter((w) => w.status === 'rejected');
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding:28px 16px;text-align:center;color:var(--text-muted);background:#f8fafc;border-radius:10px;border:1px dashed var(--border);">
+        Chưa có đơn yêu cầu phúc lợi nào trong mục này. Nhấn <strong>"Tạo đơn phúc lợi"</strong> để khởi tạo yêu cầu mới.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered
+    .map((w) => {
+      const myTurn = isMyTurnForWelfare(w);
+      const statusMeta = WELFARE_STATUS_META[w.status] || { label: w.status, cls: 'pending' };
+      const createdDate = w.createdAt ? new Date(w.createdAt).toLocaleString('vi-VN') : '';
+      const steps = w.steps || {};
+
+      const stepDefs = [
+        {
+          name: '1. Người yêu cầu',
+          state: 'done',
+          statusText: 'Đã gửi đơn',
+          by: w.requesterName || w.requesterUsername,
+          note: '',
+        },
+        {
+          name: '2. Kiểm tra 1 (PCT HĐ)',
+          key: 'checker1',
+          pendingStatus: 'pending_checker1',
+        },
+        {
+          name: '3. Kiểm tra 2 (PCT TC)',
+          key: 'checker2',
+          pendingStatus: 'pending_checker2',
+        },
+        {
+          name: '4. Phê duyệt (Chủ tịch)',
+          key: 'approver',
+          pendingStatus: 'pending_approver',
+        },
+        {
+          name: '5. Kế toán xác nhận',
+          key: 'accountant',
+          pendingStatus: 'pending_accountant',
+        },
+        {
+          name: '6. Người YC xác nhận',
+          key: 'requesterConfirm',
+          pendingStatus: 'pending_confirm',
+        },
+      ];
+
+      const stepsHtml = stepDefs
+        .map((st, idx) => {
+          if (idx === 0) {
+            return `
+              <div class="w-step-box done">
+                <div class="w-step-name">${st.name}</div>
+                <div class="w-step-status">✔ Đã gửi đơn</div>
+                <div class="w-step-by">${escapeHtml(st.by)}</div>
+              </div>
+            `;
+          }
+          const stData = steps[st.key] || { decision: 'pending' };
+          let boxCls = '';
+          let statusLabel = 'Chờ tới lượt';
+          if (stData.decision === 'approved') {
+            boxCls = 'done';
+            statusLabel = '✔ Đồng ý';
+          } else if (stData.decision === 'confirmed') {
+            boxCls = 'done';
+            statusLabel = '✔ Đã xác nhận hoàn thành';
+          } else if (stData.decision === 'cancelled') {
+            boxCls = 'cancelled';
+            statusLabel = '✖ Đã hủy đơn';
+          } else if (stData.decision === 'rejected') {
+            boxCls = 'rejected';
+            statusLabel = '✖ Không đồng ý';
+          } else if (w.status === st.pendingStatus) {
+            boxCls = 'active';
+            statusLabel = '⏳ Đang chờ xử lý';
+          }
+          const byText = stData.byName ? escapeHtml(stData.byName) : '';
+          const noteText = stData.note ? `<div class="w-step-note"><strong>Chú thích:</strong> ${escapeHtml(stData.note)}</div>` : '';
+          return `
+            <div class="w-step-box ${boxCls}">
+              <div class="w-step-name">${st.name}</div>
+              <div class="w-step-status">${statusLabel}</div>
+              ${byText ? `<div class="w-step-by">${byText}</div>` : ''}
+              ${noteText}
+            </div>
+          `;
+        })
+        .join('');
+
+      const isOwner =
+        w.requesterId === currentAdmin.id ||
+        (w.requesterUsername && w.requesterUsername.toLowerCase() === currentAdmin.username.toLowerCase());
+      const isPending = Boolean(w.status && w.status.startsWith('pending_'));
+
+      let actionBarHtml = '';
+      if (myTurn && w.status === 'pending_confirm') {
+        actionBarHtml = `
+          <div class="welfare-action-bar">
+            <span>🔔 <strong>Đến lượt bạn (${escapeHtml(currentAdmin.fullName)}):</strong> Tất cả các cấp đã đồng ý. Vui lòng xác nhận hoàn thành hoặc hủy đơn (kèm chú thích):</span>
+            <div class="welfare-action-btns">
+              <button class="btn-approve" onclick="handleWelfareAction('${w.id}', 'confirm')">✔ Xác nhận đã hoàn thành</button>
+              <button class="btn-cancel-order" onclick="handleWelfareAction('${w.id}', 'cancel')">✖ Hủy đơn (có chú thích)</button>
+            </div>
+          </div>
+        `;
+      } else if (myTurn || (isOwner && isPending)) {
+        const approveBtns = myTurn
+          ? `
+              <button class="btn-approve" onclick="handleWelfareAction('${w.id}', 'approve')">✔ Đồng ý</button>
+              <button class="btn-reject" onclick="handleWelfareAction('${w.id}', 'reject')">✖ Không đồng ý</button>
+            `
+          : '';
+        const cancelBtn =
+          isOwner && isPending
+            ? `<button class="btn-cancel-order" onclick="handleWelfareAction('${w.id}', 'cancel')">✖ Hủy đơn (có chú thích)</button>`
+            : '';
+        const promptLabel = myTurn
+          ? `🔔 <strong>Đến lượt bạn duyệt (${escapeHtml(APPROVAL_ROLE_LABELS[currentAdmin.approvalRole] || '')}):</strong>`
+          : `📝 <strong>Đơn của bạn đang chờ duyệt:</strong> Bạn có thể hủy đơn nếu không còn nhu cầu (sẽ lưu lại lịch sử kèm chú thích).`;
+        actionBarHtml = `
+          <div class="welfare-action-bar">
+            <span>${promptLabel}</span>
+            <div class="welfare-action-btns">
+              ${approveBtns}
+              ${cancelBtn}
+            </div>
+          </div>
+        `;
+      }
+
+      const canDelete = currentAdmin.id === 'adm_root' || currentAdmin.isPrimary;
+
+      return `
+        <div class="welfare-card status-${escapeHtml(statusMeta.cls)} ${myTurn ? 'is-my-turn' : ''}">
+          <div class="welfare-card-top">
+            <div>
+              <div class="welfare-card-title">${escapeHtml(w.title)}</div>
+              <div class="welfare-meta-row">
+                <span><strong>Mã đơn:</strong> ${escapeHtml(w.id)}</span>
+                <span><strong>Nhóm:</strong> ${escapeHtml(w.policyGroup || '-')}</span>
+                <span><strong>Thụ hưởng:</strong> ${escapeHtml(w.beneficiary)}</span>
+                <span><strong>Số tiền:</strong> <strong style="color:var(--yamaha-red);">${escapeHtml(w.amount)}</strong></span>
+                <span><strong>Ngày tạo:</strong> ${escapeHtml(createdDate)}</span>
+              </div>
+              ${w.reason ? `<div style="font-size:12.5px;color:var(--text-muted);margin-top:6px;"><strong>Lý do:</strong> ${escapeHtml(w.reason)}</div>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <span class="status-pill status-${escapeHtml(statusMeta.cls)}">${escapeHtml(statusMeta.label)}</span>
+              ${canDelete ? `<button class="btn-action" onclick="deleteWelfareRequest('${w.id}')" title="Xóa vĩnh viễn đơn này (chỉ TK Chính)"><i data-lucide="trash-2"></i></button>` : ''}
+            </div>
+          </div>
+          <div class="welfare-steps-bar">${stepsHtml}</div>
+          ${actionBarHtml}
+        </div>
+      `;
+    })
+    .join('');
+
+  if (window.lucide) lucide.createIcons();
+}
+
+async function handleWelfareAction(id, decision) {
+  if (!requireAdminAuth('duyệt đơn phúc lợi')) return;
+  const actionLabel =
+    decision === 'approve'
+      ? 'ĐỒNG Ý'
+      : decision === 'reject'
+      ? 'KHÔNG ĐỒNG Ý (từ chối đơn)'
+      : decision === 'cancel'
+      ? 'HỦY ĐƠN'
+      : 'XÁC NHẬN ĐÃ HOÀN THÀNH';
+
+  const promptTitle =
+    decision === 'cancel'
+      ? 'Nhập chú thích / lý do HỦY ĐƠN (bắt buộc, sẽ hiển thị ở phần xác nhận):'
+      : `Nhập ghi chú cho quyết định "${actionLabel}" (có thể bỏ trống):`;
+
+  const rawNote = window.prompt(promptTitle, '');
+  if (rawNote === null) return;
+  const note = rawNote.trim();
+
+  if (decision === 'cancel' && !note) {
+    showToast('Vui lòng nhập chú thích / lý do hủy đơn!');
+    return;
+  }
+
+  if (isServerMode) {
+    try {
+      const res = await apiRequest('/api/welfare/action', 'POST', { id, decision, note });
+      welfareRequests = res.welfareRequests || welfareRequests;
+      renderWelfareRequests();
+      showToast(`Đã cập nhật trạng thái đơn ${id}: ${actionLabel}!`);
+    } catch (err) {
+      showToast(err.message || 'Không thể thực hiện thao tác duyệt!');
+    }
+    return;
+  }
+
+  const reqItem = welfareRequests.find((w) => w.id === id);
+  if (!reqItem) return;
+  const userRole = currentAdmin.approvalRole || 'requester';
+  const nowStr = new Date().toISOString();
+  const isOwner =
+    reqItem.requesterId === currentAdmin.id ||
+    (reqItem.requesterUsername && reqItem.requesterUsername.toLowerCase() === currentAdmin.username.toLowerCase());
+
+  if (decision === 'cancel') {
+    if (!isOwner) {
+      showToast('Chỉ người tạo đơn mới được quyền hủy đơn này!');
+      return;
+    }
+    if (!reqItem.status || !reqItem.status.startsWith('pending_')) {
+      showToast('Chỉ có thể hủy đơn khi đơn chưa hoàn thành!');
+      return;
+    }
+    reqItem.steps.requesterConfirm = {
+      decision: 'cancelled',
+      byName: currentAdmin.fullName,
+      byUsername: currentAdmin.username,
+      note,
+      at: nowStr,
+    };
+    reqItem.status = 'cancelled';
+  } else if (reqItem.status === 'pending_confirm') {
+    if (!isOwner) {
+      showToast('Chỉ người yêu cầu tạo đơn mới được xác nhận hoàn thành!');
+      return;
+    }
+    reqItem.steps.requesterConfirm = {
+      decision: 'confirmed',
+      byName: currentAdmin.fullName,
+      byUsername: currentAdmin.username,
+      note: note || 'Đã xác nhận hoàn thành',
+      at: nowStr,
+    };
+    reqItem.status = 'completed';
+  } else {
+    const stepMap = {
+      pending_checker1: { key: 'checker1', role: 'checker1', next: 'pending_checker2' },
+      pending_checker2: { key: 'checker2', role: 'checker2', next: 'pending_approver' },
+      pending_approver: { key: 'approver', role: 'approver', next: 'pending_accountant' },
+      pending_accountant: { key: 'accountant', role: 'accountant', next: 'pending_confirm' },
+    };
+    const rule = stepMap[reqItem.status];
+    if (!rule || userRole !== rule.role) {
+      showToast('Bạn không có quyền xử lý bước duyệt hiện tại của đơn này!');
+      return;
+    }
+    reqItem.steps[rule.key] = {
+      decision: decision === 'approve' ? 'approved' : 'rejected',
+      byName: currentAdmin.fullName,
+      byUsername: currentAdmin.username,
+      note,
+      at: nowStr,
+    };
+    if (decision === 'reject') {
+      reqItem.status = 'rejected';
+      reqItem.rejectedStep = rule.key;
+    } else {
+      reqItem.status = rule.next;
+    }
+  }
+
+  await saveAllData();
+  renderWelfareRequests();
+  showToast(`Đã cập nhật đơn ${id}: ${actionLabel}!`);
+}
+
+async function deleteWelfareRequest(id) {
+  if (!requireAdminAuth('xóa đơn phúc lợi')) return;
+  if (!confirm(`Bạn có chắc chắn muốn xóa đơn phúc lợi "${id}"?`)) return;
+
+  if (isServerMode) {
+    try {
+      const res = await apiRequest('/api/welfare/delete', 'POST', { id });
+      welfareRequests = res.welfareRequests || welfareRequests;
+      renderWelfareRequests();
+      showToast(`Đã xóa đơn phúc lợi ${id}.`);
+    } catch (err) {
+      showToast(err.message || 'Không thể xóa đơn phúc lợi!');
+    }
+    return;
+  }
+
+  welfareRequests = welfareRequests.filter((w) => w.id !== id);
+  await saveAllData();
+  renderWelfareRequests();
+  showToast(`Đã xóa đơn phúc lợi ${id}.`);
+}
+
+function openWelfareMatrixModal() {
+  const tbody = document.getElementById('welfare-matrix-tbody');
+  if (tbody) {
+    tbody.innerHTML = admins
+      .map((adm, idx) => {
+        const r = adm.approvalRole || 'requester';
+        return `
+          <tr>
+            <td>${idx + 1}</td>
+            <td><strong>${escapeHtml(adm.fullName)}</strong><br><span class="text-muted" style="font-size:11.5px;">@${escapeHtml(adm.username)}</span></td>
+            <td style="text-align:center;">✔</td>
+            <td style="text-align:center;">${r === 'checker1' ? '✅ <strong>Đ/c Phí Văn Mạnh</strong>' : '—'}</td>
+            <td style="text-align:center;">${r === 'checker2' ? '✅ <strong>Đ/c Nguyễn Văn Hợp</strong>' : '—'}</td>
+            <td style="text-align:center;">${r === 'approver' ? '✅ <strong>Đ/c Nguyễn Huy Sáng</strong>' : '—'}</td>
+            <td style="text-align:center;">${r === 'accountant' ? '✅ <strong>Kế toán CĐ</strong>' : '—'}</td>
+            <td style="text-align:center;">✔ (Chính chủ đơn)</td>
+          </tr>
+        `;
+      })
+      .join('');
+  }
+  document.getElementById('welfare-matrix-modal')?.classList.add('open');
 }
 
 // ============================================================================
@@ -2201,6 +2715,12 @@ Object.assign(window, {
   editCurrentAdminAccount,
   saveAdminAccountForm,
   deleteAdminAccount,
+  openWelfareModal,
+  saveWelfareRequestForm,
+  setWelfareFilter,
+  handleWelfareAction,
+  deleteWelfareRequest,
+  openWelfareMatrixModal,
   closeModal,
 });
 })();

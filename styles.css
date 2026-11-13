@@ -1904,3 +1904,264 @@ body {
     font-size: 9.5px;
   }
 }
+
+/* ============================================================================
+   QUẢN LÝ & DUYỆT ĐƠN PHÚC LỢI 6 BƯỚC
+   ============================================================================ */
+.welfare-role-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 10px 14px;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--slate-600);
+  margin-bottom: 16px;
+}
+
+.welfare-role-legend strong {
+  color: var(--navy-900);
+}
+
+.welfare-filter-row {
+  margin-bottom: 14px;
+}
+
+.welfare-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.welfare-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.welfare-card {
+  border: 1px solid var(--slate-200);
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.welfare-card.is-my-turn {
+  box-shadow: 0 4px 14px rgba(230, 0, 18, 0.1);
+}
+
+.welfare-card.status-pending {
+  border-color: #fcd34d;
+  border-left: 5px solid #f59e0b;
+  background: #fffdf5;
+}
+
+.welfare-card.status-completed {
+  border-color: #86efac;
+  border-left: 5px solid #16a34a;
+  background: #f6fef9;
+}
+
+.welfare-card.status-cancelled {
+  border-color: #fdba74;
+  border-left: 5px solid #ea580c;
+  background: #fff8f2;
+}
+
+.welfare-card.status-rejected {
+  border-color: #fca5a5;
+  border-left: 5px solid #dc2626;
+  background: #fff5f5;
+}
+
+.status-pill.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.status-pill.status-completed {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.status-pill.status-cancelled {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fdba74;
+}
+
+.status-pill.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.welfare-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.welfare-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-top: 4px;
+}
+
+.welfare-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: var(--slate-600);
+  margin-bottom: 12px;
+}
+
+.welfare-steps-bar {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.w-step-box {
+  border: 1px solid var(--slate-200);
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: var(--slate-50);
+  font-size: 12px;
+}
+
+.w-step-box.done {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.w-step-box.active {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.14);
+}
+
+.w-step-box.rejected {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.w-step-box.cancelled {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
+
+.w-step-note {
+  margin-top: 4px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  font-size: 11px;
+  color: var(--slate-700);
+  word-break: break-word;
+}
+
+.w-step-name {
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 3px;
+  font-size: 11.5px;
+}
+
+.w-step-status {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.w-step-by {
+  font-size: 11px;
+  color: var(--slate-500);
+  margin-top: 2px;
+}
+
+.welfare-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--slate-100);
+}
+
+.welfare-action-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-approve {
+  background: #15803d;
+  color: #fff;
+}
+
+.btn-approve:hover {
+  background: #166534;
+}
+
+.btn-reject {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-reject:hover {
+  background: #b91c1c;
+}
+
+.btn-cancel-order {
+  background: #ea580c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancel-order:hover {
+  background: #c2410c;
+}
+
+.btn-approve,
+.btn-reject {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .welfare-steps-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .welfare-steps-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .welfare-card {
+    padding: 14px;
+  }
+}
