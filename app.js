@@ -2380,6 +2380,8 @@ function renderWelfareRequests() {
         },
       ];
 
+      const rejectedIdx = stepDefs.findIndex((s) => s.key && steps[s.key]?.decision === 'rejected');
+
       const stepsHtml = stepDefs
         .map((st, idx) => {
           if (idx === 0) {
@@ -2406,6 +2408,12 @@ function renderWelfareRequests() {
           } else if (stData.decision === 'rejected') {
             boxCls = 'rejected';
             statusLabel = '✖ Không đồng ý';
+          } else if (w.status === 'rejected' && rejectedIdx > -1 && idx > rejectedIdx) {
+            boxCls = 'rejected';
+            statusLabel = '✖ Đã không đồng ý';
+          } else if (w.status === 'cancelled') {
+            boxCls = 'cancelled';
+            statusLabel = '✖ Đã hủy đơn';
           } else if (w.status === st.pendingStatus) {
             boxCls = 'active';
             statusLabel = '⏳ Đang chờ xử lý';
@@ -2509,6 +2517,8 @@ async function handleWelfareAction(id, decision) {
   const promptTitle =
     decision === 'cancel'
       ? 'Nhập chú thích / lý do HỦY ĐƠN (bắt buộc, sẽ hiển thị ở phần xác nhận):'
+      : decision === 'reject'
+      ? 'Nhập chú thích / lý do KHÔNG ĐỒNG Ý (bắt buộc):'
       : `Nhập ghi chú cho quyết định "${actionLabel}" (có thể bỏ trống):`;
 
   const rawNote = window.prompt(promptTitle, '');
@@ -2517,6 +2527,10 @@ async function handleWelfareAction(id, decision) {
 
   if (decision === 'cancel' && !note) {
     showToast('Vui lòng nhập chú thích / lý do hủy đơn!');
+    return;
+  }
+  if (decision === 'reject' && !note) {
+    showToast('Vui lòng nhập chú thích / lý do không đồng ý!');
     return;
   }
 

@@ -705,6 +705,9 @@ const server = http.createServer(async (req, res) => {
         if (decision !== 'approve' && decision !== 'reject') {
           return sendJson(res, 400, { error: 'Lựa chọn duyệt phải là Đồng ý hoặc Không đồng ý!' });
         }
+        if (decision === 'reject' && !note) {
+          return sendJson(res, 400, { error: 'Vui lòng nhập chú thích / lý do không đồng ý!' });
+        }
 
         reqItem.steps[currentRule.key] = {
           decision: decision === 'approve' ? 'approved' : 'rejected',
