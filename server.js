@@ -15,6 +15,7 @@ const crypto = require('crypto');
 const os = require('os');
 
 const PORT = Number(process.env.PORT) || 3000;
+const BACKUP_KEY = String(process.env.BACKUP_KEY || '').trim();
 const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const DB_FILE = path.join(DATA_DIR, 'database.json');
@@ -175,16 +176,13 @@ function getInitialDatabase() {
         desc: 'Khen thưởng các đoàn viên có sáng kiến giảm tỷ lệ hàng lỗi (NG), tiết kiệm năng lượng tại xưởng Đúc và rút ngắn thời gian gá đặt tại xưởng Gia công CNC.',
       },
     ],
-    policies: [
-      { id: 'pol1', group: 'Hiếu - Hỷ - Thăm hỏi', title: 'Mừng kết hôn Đoàn viên Công đoàn', amount: '1.000.000 VNĐ / đoàn viên', desc: 'Áp dụng cho đoàn viên chính thức kết hôn (nộp bản sao Giấy đăng ký kết hôn cho Tổ trưởng Công đoàn bộ phận trong vòng 30 ngày).' },
-      { id: 'pol2', group: 'Nữ công & Con đoàn viên', title: 'Chúc mừng Đoàn viên sinh con (Nam & Nữ đoàn viên)', amount: '1.000.000 VNĐ / bé', desc: 'Áp dụng cho cả đoàn viên nữ sinh con hoặc đoàn viên nam có vợ sinh con. Ngoài ra nữ đoàn viên mang thai từ tháng thứ 7 được bố trí làm ca hành chính và suất ăn bổ sung.' },
-      { id: 'pol3', group: 'Hiếu - Hỷ - Thăm hỏi', title: 'Thăm hỏi ốm đau nằm viện & Phẫu thuật', amount: '500.000 - 2.000.000 VNĐ', desc: 'Đoàn viên điều trị nội trú tại bệnh viện từ 3 ngày trở lên hoặc phẫu thuật được BCH Công đoàn thăm hỏi trực tiếp và hỗ trợ kinh phí.' },
-      { id: 'pol4', group: 'Hiếu - Hỷ - Thăm hỏi', title: 'Chế độ Hiếu sự (Tứ thân phụ mẫu, vợ/chồng, con)', amount: '2.000.000 VNĐ + Vòng hoa viếng', desc: 'Công đoàn cơ sở phối hợp cùng bộ phận tổ chức đoàn thăm viếng, chia buồn và hỗ trợ kịp thời cho gia đình đoàn viên.' },
-      { id: 'pol5', group: 'Phúc lợi Lễ - Tết', title: 'Quà tặng Sinh nhật, Tết Nguyên Đán, Trung Thu, 8/3 & 20/10', amount: '300.000 - 1.200.000 VNĐ / dịp', desc: 'Mừng sinh nhật đoàn viên hàng tháng, tặng giỏ quà Tết Âm lịch, bánh Trung thu, quà Quốc tế Phụ nữ 8/3, Phụ nữ Việt Nam 20/10 và Quốc tế Thiếu nhi 1/6.' },
-      { id: 'pol6', group: 'Nữ công & Con đoàn viên', title: 'Khuyến học "Con Công nhân viên YPMV Học giỏi - Vượt khó"', amount: '500.000 - 1.500.000 VNĐ / cháu', desc: 'Khen thưởng các cháu là con đoàn viên đạt danh hiệu Học sinh Giỏi các cấp, đạt giải thi học sinh giỏi Tỉnh/Thành phố, Quốc gia hoặc đỗ Đại học.' },
-      { id: 'pol7', group: 'Bảo hộ & Điều kiện làm việc', title: 'Bữa cơm Công đoàn & Phụ cấp giải nhiệt mùa hè tại Xưởng', amount: 'Suất ăn đặc biệt + Nước điện giải/Sữa chua hàng ngày', desc: 'Tổ chức "Bữa cơm Công đoàn" định kỳ nâng cao khẩu phần dinh dưỡng và cấp phát nước chanh muối, sữa chua mát cho công nhân xưởng Đúc, Gia công trong các tháng nắng nóng.' },
-      { id: 'pol8', group: 'Hiếu - Hỷ - Thăm hỏi', title: 'Quỹ Tương trợ Đoàn viên Khó khăn Đột xuất & Mái ấm Công đoàn', amount: '3.000.000 - 15.000.000 VNĐ', desc: 'Hỗ trợ đoàn viên gặp thiên tai, hỏa hoạn, bệnh hiểm nghèo hoặc hoàn cảnh gia đình đặc biệt khó khăn theo đề xuất của Tổ Công đoàn bộ phận.' },
-    ],
+    policies: (() => {
+      try {
+        const pPath = path.join(__dirname, 'data', 'default_policies_2026.json');
+        if (fs.existsSync(pPath)) return JSON.parse(fs.readFileSync(pPath, 'utf8'));
+      } catch (e) {}
+      return [];
+    })(),
     activities: [
       { id: 'act1', title: 'Bữa Cơm Công Đoàn YPMV - Ấm Áp Tình Đồng Nghiệp Giữa Các Ca Sản Xuất', date: '2026-10-20', tag: 'Chăm lo Đời sống', highlight: '1.450 suất ăn đặc biệt trị giá 65.000đ/suất', summary: 'Ban Chấp hành Công đoàn phối hợp cùng Ban Giám đốc tổ chức Bữa cơm Công đoàn cho toàn thể công nhân viên cả 3 ca với thực đơn bổ dưỡng, trái cây tráng miệng và trao quà mừng ngày Phụ nữ Việt Nam 20/10.', gradient: 'linear-gradient(135deg, #d90429, #9b001a)' },
       { id: 'act2', title: 'Sôi Nổi Giải Bóng Đá Nam - Nữ Công Đoàn Phụ Tùng Yamaha Motor VN', date: '2026-09-15', tag: 'Văn nghệ - Thể thao', highlight: '14 đội bóng từ 7 Bộ phận • Hơn 600 cổ động viên', summary: 'Phân xưởng Gia công cơ khí xuất sắc giành Cúp Vô địch bóng đá nam, trong khi liên quân QC - Lắp ráp đăng quang nội dung bóng đá nữ sau loạt sút luân lưu kịch tính.', gradient: 'linear-gradient(135deg, #1d4ed8, #1e3a8a)' },
@@ -377,6 +375,7 @@ const MIME_TYPES = {
   '.jpeg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.pdf': 'application/pdf',
 };
 
 const server = http.createServer(async (req, res) => {
@@ -477,6 +476,37 @@ const server = http.createServer(async (req, res) => {
           200,
           { ok: true },
           { 'Set-Cookie': 'ypmv_session=; HttpOnly; Path=/; Max-Age=0' }
+        );
+      }
+
+      // 3.5. GET /api/backup/export - Xuất toàn bộ dữ liệu JSON (dành cho Admin hoặc Google Apps Script có BACKUP_KEY)
+      if (pathname === '/api/backup/export' && method === 'GET') {
+        const authBackup = getAuthenticatedAdmin(req);
+        const providedKey = String(req.headers['x-backup-key'] || parsedUrl.searchParams.get('key') || '').trim();
+        let hasValidKey = false;
+        if (BACKUP_KEY && providedKey && BACKUP_KEY.length === providedKey.length) {
+          hasValidKey = crypto.timingSafeEqual(Buffer.from(BACKUP_KEY), Buffer.from(providedKey));
+        }
+        if (!authBackup && !hasValidKey) {
+          return sendJson(res, 401, { error: 'Không có quyền xuất backup (thiếu đăng nhập Quản trị hoặc BACKUP_KEY hợp lệ).' });
+        }
+        const dateTag = new Date().toISOString().slice(0, 10);
+        return sendJson(
+          res,
+          200,
+          {
+            exportedAt: new Date().toISOString(),
+            departments: db.departments,
+            members: db.members,
+            plans: db.plans,
+            policies: db.policies,
+            activities: db.activities,
+            admins: db.admins,
+            welfareRequests: db.welfareRequests || [],
+          },
+          {
+            'Content-Disposition': `attachment; filename="ypmv-backup-${dateTag}.json"`,
+          }
         );
       }
 
