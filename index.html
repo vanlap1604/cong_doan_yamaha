@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; media-src 'self' data: https: blob:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.sheetjs.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; media-src 'self' data: https: blob:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; object-src 'self'; base-uri 'self';" />
+  <meta name="theme-color" content="#1d4ed8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Công đoàn YPMV" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
   <title>Công Đoàn Công Ty TNHH Sản Xuất Phụ Tùng Yamaha Motor Việt Nam (YPMV)</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- SheetJS (xlsx) for Excel Import/Export -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <!-- QR Code Generator for Google Authenticator 2FA -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="styles.css" />
@@ -87,6 +96,9 @@
         </div>
         <div class="topbar-right">
           <div class="auth-status-bar" id="auth-status-bar">
+            <button class="btn btn-outline btn-sm" id="btn-install-app" onclick="triggerInstallApp()" title="Cài đặt App lên Android / iPhone không qua chợ ứng dụng">
+              <i data-lucide="smartphone"></i> <span>Cài App điện thoại</span>
+            </button>
             <span class="auth-badge logged admin-only" id="auth-badge-text" style="display:none;"></span>
             <button class="btn btn-primary btn-sm" id="btn-top-login" onclick="openLoginModal()">
               <i data-lucide="log-in"></i> <span>Đăng nhập Quản trị</span>
@@ -1100,6 +1112,37 @@
     </div>
   </div>
 
+  <!-- MODAL 5B: GOOGLE AUTHENTICATOR 2FA MODAL -->
+  <div class="modal-backdrop" id="google-2fa-modal">
+    <div class="modal-dialog" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 id="g2fa-title"><i data-lucide="shield-check" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--yamaha-red);"></i> Xác nhận Google Authenticator</h3>
+        <button class="btn-icon" onclick="closeModal('google-2fa-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <form id="google-2fa-form" onsubmit="handleVerify2faSubmit(event)">
+        <div class="modal-body">
+          <p class="text-muted" id="g2fa-desc" style="margin-bottom: 12px;"></p>
+          <div id="g2fa-setup-box" style="display:none; text-align:center; background:var(--slate-50); border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:14px;">
+            <div id="g2fa-qr-container" style="display:inline-block; background:#fff; padding:10px; border-radius:10px; border:1px solid #cbd5e1; margin-bottom:10px;"></div>
+            <div style="font-size:12px; color:var(--slate-600); margin-bottom:6px;">Nếu không quét được mã QR, nhập khóa bí mật này vào app <strong>Google Authenticator</strong>:</div>
+            <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap;">
+              <code id="g2fa-secret-text" style="font-size:13px; font-weight:700; letter-spacing:1px; background:#fff; padding:6px 10px; border-radius:6px; border:1px dashed #94a3b8; color:var(--navy-900);"></code>
+              <button type="button" class="btn btn-outline btn-sm" onclick="copy2faSecret()">Sao chép</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nhập mã 6 số từ Google Authenticator <span class="req">*</span></label>
+            <input type="text" id="g2fa-code-input" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="VD: 123456" autocomplete="one-time-code" style="font-size:20px; font-weight:700; letter-spacing:6px; text-align:center;" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('google-2fa-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary"><i data-lucide="check-circle-2"></i> Xác nhận mã</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODAL 6: CREATE / EDIT ADMIN ACCOUNT (MAX 30) -->
   <div class="modal-backdrop" id="admin-account-modal">
     <div class="modal-dialog" style="max-width: 540px;">
@@ -1216,6 +1259,43 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeModal('welfare-matrix-modal')">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 10: INSTALL APP ON ANDROID / IPHONE -->
+  <div class="modal-backdrop" id="install-app-modal">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i data-lucide="smartphone" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--yamaha-red);"></i> Cài đặt Ứng dụng Công đoàn YPMV lên Điện thoại</h3>
+        <button class="btn-icon" onclick="closeModal('install-app-modal')"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
+        <p class="text-muted">Ứng dụng cài đặt trực tiếp từ trình duyệt lên màn hình chính (chạy toàn màn hình như app riêng, <strong>không cần qua App Store hay CH Play</strong>).</p>
+        <div id="install-android-direct-box" style="display:none;background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;text-align:center;">
+          <button type="button" class="btn btn-primary" onclick="confirmAndroidNativeInstall()" style="width:100%;justify-content:center;">
+            <i data-lucide="download"></i> Bấm để Cài đặt ngay lên Android
+          </button>
+        </div>
+        <div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px;padding:12px 14px;">
+          <strong style="display:block;color:var(--navy-900);margin-bottom:6px;">📱 Trên iPhone / iPad (Dùng trình duyệt Safari):</strong>
+          <ol style="margin-left:18px;font-size:13.5px;color:var(--slate-600);line-height:1.6;">
+            <li>Mở địa chỉ web Công đoàn bằng trình duyệt <strong>Safari</strong>.</li>
+            <li>Bấm biểu tượng <strong>Chia sẻ (ô vuông có mũi tên lên)</strong> ở thanh dưới cùng.</li>
+            <li>Chọn <strong>"Thêm vào Màn hình chính" (Add to Home Screen)</strong> → bấm <strong>Thêm</strong>.</li>
+          </ol>
+        </div>
+        <div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px;padding:12px 14px;">
+          <strong style="display:block;color:var(--navy-900);margin-bottom:6px;">🤖 Trên Android (Dùng trình duyệt Chrome / Edge):</strong>
+          <ol style="margin-left:18px;font-size:13.5px;color:var(--slate-600);line-height:1.6;">
+            <li>Mở web bằng trình duyệt <strong>Google Chrome</strong>.</li>
+            <li>Bấm biểu tượng <strong>3 chấm dọc (⋮)</strong> ở góc trên bên phải.</li>
+            <li>Chọn <strong>"Cài đặt ứng dụng"</strong> hoặc <strong>"Thêm vào Màn hình chính"</strong> → bấm <strong>Cài đặt</strong>.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('install-app-modal')">Đóng</button>
       </div>
     </div>
   </div>

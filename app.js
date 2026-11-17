@@ -315,6 +315,7 @@ let activities = [];
 let admins = [];
 let welfareRequests = [];
 let currentAdmin = null;
+let pending2faState = null;
 let selectedDepartment = 'ALL';
 let selectedPlanCategory = 'ALL';
 let selectedWelfareFilter = 'ALL';
@@ -1870,6 +1871,132 @@ function openLoginModal() {
   document.getElementById('login-modal')?.classList.add('open');
 }
 
+function openGoogle2faModal(data, passEl = null) {
+  pending2faState = {
+    tempToken: data.tempToken,
+    mode: data.mode,
+    secret: data.secret || '',
+    otpauthUrl: data.otpauthUrl || '',
+    passEl,
+  };
+
+  const titleEl = document.getElementById('g2fa-title');
+  const descEl = document.getElementById('g2fa-desc');
+  const setupBox = document.getElementById('g2fa-setup-box');
+  const qrContainer = document.getElementById('g2fa-qr-container');
+  const secretEl = document.getElementById('g2fa-secret-text');
+  const codeInput = document.getElementById('g2fa-code-input');
+
+  if (codeInput) codeInput.value = '';
+
+  if (data.mode === 'setup') {
+    if (titleEl) {
+      titleEl.innerHTML = `<i data-lucide="qr-code" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--yamaha-red);"></i> Kích hoạt Google Authenticator (Lần đầu)`;
+    }
+    if (descEl) {
+      descEl.innerHTML = `Tài khoản <strong>${escapeHtml(data.fullName || data.username)}</strong> chưa liên kết Google Authenticator. Hãy mở app <strong>Google Authenticator</strong> trên điện thoại, quét mã QR bên dưới rồi nhập mã 6 số để hoàn tất đăng nhập:`;
+    }
+    if (setupBox) setupBox.style.display = 'block';
+    if (secretEl) secretEl.textContent = data.secret || '';
+    if (qrContainer) {
+      qrContainer.innerHTML = '';
+      if (window.qrcode && data.otpauthUrl) {
+        try {
+          const qr = window.qrcode(0, 'M');
+          qr.addData(data.otpauthUrl);
+          qr.make();
+          qrContainer.innerHTML = qr.createImgTag(5, 8);
+        } catch (err) {
+          qrContainer.textContent = 'Không tạo được ảnh QR. Vui lòng nhập khóa bí mật bên dưới vào app.';
+        }
+      } else {
+        qrContainer.textContent = 'Vui lòng nhập khóa bí mật bên dưới vào Google Authenticator.';
+      }
+    }
+  } else {
+    if (titleEl) {
+      titleEl.innerHTML = `<i data-lucide="shield-check" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;color:var(--yamaha-red);"></i> Xác nhận Google Authenticator`;
+    }
+    if (descEl) {
+      descEl.innerHTML = `Xin chào <strong>${escapeHtml(data.fullName || data.username)}</strong>. Vui lòng mở ứng dụng <strong>Google Authenticator</strong> và nhập mã xác thực 6 chữ số:`;
+    }
+    if (setupBox) setupBox.style.display = 'none';
+  }
+
+  closeModal('login-modal');
+  document.getElementById('google-2fa-modal')?.classList.add('open');
+  if (window.lucide) lucide.createIcons();
+  setTimeout(() => codeInput?.focus(), 100);
+}
+
+function copy2faSecret() {
+  if (!pending2faState?.secret) return;
+  navigator.clipboard?.writeText(pending2faState.secret).then(
+    () => showToast('Đã sao chép khóa bí mật Google Authenticator!'),
+    () => showToast(`Khóa bí mật: ${pending2faState.secret}`)
+  );
+}
+
+async function handleVerify2faSubmit(e) {
+  e.preventDefault();
+  if (!pending2faState?.tempToken) {
+    closeModal('google-2fa-modal');
+    showToast('Phiên xác thực đã hết hạn. Vui lòng đăng nhập lại!');
+    return;
+  }
+
+  const code = (document.getElementById('g2fa-code-input')?.value || '').trim();
+  if (!/^\d{6}$/.test(code)) {
+    showToast('Vui lòng nhập đúng 6 chữ số từ Google Authenticator!');
+    return;
+  }
+
+  try {
+    const data = await apiRequest('/api/login/verify-2fa', 'POST', {
+      tempToken: pending2faState.tempToken,
+      code,
+    });
+    serverToken = data.token || '';
+    localStorage.setItem(STORAGE_KEYS.SERVER_TOKEN, serverToken);
+    currentAdmin = data.currentAdmin;
+    members = Array.isArray(data.members) ? data.members : [];
+    if (Array.isArray(data.admins)) admins = data.admins;
+    welfareRequests = Array.isArray(data.welfareRequests) ? data.welfareRequests : [];
+    if (pending2faState.passEl) pending2faState.passEl.value = '';
+    const wasSetup = pending2faState.mode === 'setup';
+    pending2faState = null;
+    closeModal('google-2fa-modal');
+    renderAll();
+    showToast(
+      wasSetup
+        ? `Đã kích hoạt Google Authenticator và đăng nhập thành công! Xin chào ${currentAdmin.fullName}.`
+        : `Xác thực Google Authenticator thành công! Xin chào ${currentAdmin.fullName}.`
+    );
+  } catch (err) {
+    showToast(err.message || 'Mã Google Authenticator không đúng!');
+  }
+}
+
+async function resetAdmin2fa(adminId, username) {
+  if (!requireAdminAuth('đặt lại Google Authenticator')) return;
+  if (!confirm(`Đặt lại Google Authenticator cho tài khoản "${username}"?\nLần đăng nhập tiếp theo tài khoản này sẽ quét lại mã QR mới.`)) {
+    return;
+  }
+  if (!isServerMode) {
+    showToast('Chức năng Google Authenticator hoạt động ở chế độ Máy chủ (Server).');
+    return;
+  }
+  try {
+    const res = await apiRequest('/api/admins/reset-2fa', 'POST', { id: adminId });
+    if (Array.isArray(res.admins)) admins = res.admins;
+    if (res.currentAdmin) currentAdmin = res.currentAdmin;
+    renderAll();
+    showToast(`Đã đặt lại Google Authenticator cho "${username}".`);
+  } catch (err) {
+    showToast(err.message || 'Không thể đặt lại Google Authenticator!');
+  }
+}
+
 async function handleLoginSubmit(e, source = 'modal') {
   e.preventDefault();
 
@@ -1882,6 +2009,10 @@ async function handleLoginSubmit(e, source = 'modal') {
   if (isServerMode) {
     try {
       const data = await apiRequest('/api/login', 'POST', { username, password });
+      if (data.requires2fa) {
+        openGoogle2faModal(data, passEl);
+        return;
+      }
       serverToken = data.token || '';
       localStorage.setItem(STORAGE_KEYS.SERVER_TOKEN, serverToken);
       currentAdmin = data.currentAdmin;
@@ -2039,11 +2170,20 @@ function renderAdminsSection() {
       let actionHtml = `<span class="text-muted" style="font-size:12px;">Cần đăng nhập</span>`;
 
       if (currentAdmin) {
+        const isRootActor = currentAdmin.id === 'adm_root' || currentAdmin.isPrimary;
+        const canReset2fa = isServerMode && adm.totpEnabled && (isRootActor || currentAdmin.id === adm.id);
         actionHtml = `
           <div class="row-actions">
             <button class="btn-action" onclick="editAdminAccount('${adm.id}')" title="Sửa Tên, Mật khẩu, Chức vụ">
               <i data-lucide="pencil"></i>
             </button>
+            ${
+              canReset2fa
+                ? `<button class="btn-action" onclick="resetAdmin2fa('${adm.id}', '${escapeHtml(adm.username)}')" title="Đặt lại Google Authenticator (2FA)">
+                    <i data-lucide="qr-code"></i>
+                  </button>`
+                : ''
+            }
             ${
               isRoot
                 ? `<span class="status-pill status-bch" title="Tài khoản quản trị chính">TK Chính</span>`
@@ -2055,6 +2195,12 @@ function renderAdminsSection() {
         `;
       }
 
+      const twoFaBadge = isServerMode
+        ? adm.totpEnabled
+          ? `<span class="status-pill status-completed" style="font-size:10.5px;padding:2px 7px;">2FA: Đã bật</span>`
+          : `<span class="status-pill status-pending" style="font-size:10.5px;padding:2px 7px;">2FA: Chờ quét QR</span>`
+        : '';
+
       return `
         <tr>
           <td>${idx + 1}</td>
@@ -2062,7 +2208,7 @@ function renderAdminsSection() {
           <td><strong>${escapeHtml(adm.fullName)}</strong></td>
           <td>
             <div>${escapeHtml(adm.role || 'Ủy viên BCH')}</div>
-            <div style="margin-top:4px;">${getApprovalRoleBadgeHtml(adm.approvalRole)}</div>
+            <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">${getApprovalRoleBadgeHtml(adm.approvalRole)} ${twoFaBadge}</div>
           </td>
           <td>${escapeHtml(adm.createdAt || '-')}</td>
           <td style="text-align: right;">${actionHtml}</td>
@@ -2770,6 +2916,51 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// ============================================================================
+// PWA INSTALL & SERVICE WORKER (CÀI ĐẶT APP ANDROID / IPHONE)
+// ============================================================================
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const directBox = document.getElementById('install-android-direct-box');
+  if (directBox) directBox.style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  const installBtn = document.getElementById('btn-install-app');
+  if (installBtn) installBtn.style.display = 'none';
+  closeModal('install-app-modal');
+  showToast('Đã cài đặt Ứng dụng Công đoàn YPMV lên thiết bị!');
+});
+
+function triggerInstallApp() {
+  if (deferredInstallPrompt) {
+    confirmAndroidNativeInstall();
+    return;
+  }
+  document.getElementById('install-app-modal')?.classList.add('open');
+  if (window.lucide) lucide.createIcons();
+}
+
+async function confirmAndroidNativeInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if (choice && choice.outcome === 'accepted') {
+    deferredInstallPrompt = null;
+    closeModal('install-app-modal');
+  }
+}
+
 Object.assign(window, {
   switchTab,
   closeMobileSidebar,
@@ -2803,6 +2994,9 @@ Object.assign(window, {
   deleteActivity,
   openLoginModal,
   handleLoginSubmit,
+  handleVerify2faSubmit,
+  copy2faSecret,
+  resetAdmin2fa,
   logoutAdmin,
   openAdminAccountModal,
   editAdminAccount,
@@ -2815,6 +3009,8 @@ Object.assign(window, {
   handleWelfareAction,
   deleteWelfareRequest,
   openWelfareMatrixModal,
+  triggerInstallApp,
+  confirmAndroidNativeInstall,
   closeModal,
 });
 })();

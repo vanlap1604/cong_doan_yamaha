@@ -1,0 +1,26 @@
+{
+  "name": "Công đoàn YPMV - Yamaha Motor Parts VN",
+  "short_name": "Công đoàn YPMV",
+  "description": "Cổng thông tin & Quản trị Công đoàn Công ty TNHH Sản xuất Phụ tùng Yamaha Motor Việt Nam",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0c4a6e",
+  "theme_color": "#1d4ed8",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

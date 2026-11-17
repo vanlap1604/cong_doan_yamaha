@@ -27,7 +27,93 @@ const LOCKOUT_MS = 5 * 60 * 1000; // 5 phút
 
 // Lưu phiên đăng nhập trên RAM của Server & bộ đếm chống Brute-force theo IP
 const activeSessions = new Map(); // token -> { adminId, username, expiresAt }
+const pending2faSessions = new Map(); // tempToken -> { adminId, mode, secret, expiresAt }
 const loginAttemptsByIp = new Map(); // ip -> { count, lockUntil }
+
+// ==========================================================================
+// GOOGLE AUTHENTICATOR (TOTP RFC 6238) THUẦN NODE.JS
+// ==========================================================================
+const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+function base32Encode(buffer) {
+  let bits = 0;
+  let value = 0;
+  let output = '';
+  for (let i = 0; i < buffer.length; i++) {
+    value = (value << 8) | buffer[i];
+    bits += 8;
+    while (bits >= 5) {
+      output += BASE32_ALPHABET[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if (bits > 0) {
+    output += BASE32_ALPHABET[(value << (5 - bits)) & 31];
+  }
+  return output;
+}
+
+function base32Decode(str) {
+  const clean = String(str || '')
+    .toUpperCase()
+    .replace(/=+$/, '')
+    .replace(/[^A-Z2-7]/g, '');
+  let bits = 0;
+  let value = 0;
+  const bytes = [];
+  for (let i = 0; i < clean.length; i++) {
+    const idx = BASE32_ALPHABET.indexOf(clean[i]);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+function generateTotpSecret() {
+  return base32Encode(crypto.randomBytes(20));
+}
+
+function generateTotpCode(secretBase32, counterOffset = 0) {
+  const key = base32Decode(secretBase32);
+  const counter = Math.floor(Date.now() / 1000 / 30) + counterOffset;
+  const buf = Buffer.alloc(8);
+  let tmp = counter;
+  for (let i = 7; i >= 0; i--) {
+    buf[i] = tmp & 0xff;
+    tmp = Math.floor(tmp / 256);
+  }
+  const hmac = crypto.createHmac('sha1', key).update(buf).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binary =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+  return String(binary % 1000000).padStart(6, '0');
+}
+
+function verifyTotpCode(secretBase32, code, window = 1) {
+  const cleanCode = String(code || '').replace(/\s+/g, '');
+  if (!/^\d{6}$/.test(cleanCode) || !secretBase32) return false;
+  for (let offset = -window; offset <= window; offset++) {
+    const expected = generateTotpCode(secretBase32, offset);
+    if (crypto.timingSafeEqual(Buffer.from(cleanCode), Buffer.from(expected))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function buildOtpAuthUrl(username, secretBase32) {
+  const issuer = 'CongDoanYPMV';
+  const label = encodeURIComponent(`${issuer}:${username}`);
+  return `otpauth://totp/${label}?secret=${secretBase32}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+}
 
 // Mã hóa mật khẩu chuẩn mật mã học bằng crypto.scryptSync
 function hashPasswordServer(plainPassword, salt = crypto.randomBytes(16).toString('hex')) {
@@ -283,6 +369,7 @@ function sanitizePublicAdmins(adminsList) {
     fullName: a.fullName,
     role: a.role,
     approvalRole: a.approvalRole || 'requester',
+    totpEnabled: Boolean(a.totpEnabled && a.totpSecret),
     createdAt: a.createdAt,
     isPrimary: Boolean(a.isPrimary),
   }));
@@ -376,6 +463,7 @@ const MIME_TYPES = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.pdf': 'application/pdf',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
 
 const server = http.createServer(async (req, res) => {
@@ -443,6 +531,121 @@ const server = http.createServer(async (req, res) => {
         }
 
         loginAttemptsByIp.delete(ip);
+
+        const has2fa = Boolean(matched.totpEnabled && matched.totpSecret);
+        const inlineCode = String(body.totpCode || '').trim();
+
+        if (has2fa && inlineCode && verifyTotpCode(matched.totpSecret, inlineCode)) {
+          const token = crypto.randomBytes(32).toString('hex');
+          activeSessions.set(token, {
+            adminId: matched.id,
+            username: matched.username,
+            expiresAt: Date.now() + SESSION_TTL_MS,
+          });
+          return sendJson(
+            res,
+            200,
+            {
+              ok: true,
+              token,
+              currentAdmin: sanitizePublicAdmins([matched])[0],
+              members: db.members,
+              admins: sanitizePublicAdmins(db.admins),
+              welfareRequests: db.welfareRequests || [],
+            },
+            {
+              'Set-Cookie': `ypmv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`,
+            }
+          );
+        }
+
+        const tempToken = crypto.randomBytes(24).toString('hex');
+        if (has2fa) {
+          pending2faSessions.set(tempToken, {
+            adminId: matched.id,
+            mode: 'verify',
+            secret: matched.totpSecret,
+            expiresAt: Date.now() + 5 * 60 * 1000,
+          });
+          return sendJson(res, 200, {
+            ok: false,
+            requires2fa: true,
+            mode: 'verify',
+            tempToken,
+            username: matched.username,
+            fullName: matched.fullName,
+          });
+        }
+
+        const tempSecret = generateTotpSecret();
+        pending2faSessions.set(tempToken, {
+          adminId: matched.id,
+          mode: 'setup',
+          secret: tempSecret,
+          expiresAt: Date.now() + 5 * 60 * 1000,
+        });
+        return sendJson(res, 200, {
+          ok: false,
+          requires2fa: true,
+          mode: 'setup',
+          tempToken,
+          secret: tempSecret,
+          otpauthUrl: buildOtpAuthUrl(matched.username, tempSecret),
+          username: matched.username,
+          fullName: matched.fullName,
+        });
+      }
+
+      // 2.5. POST /api/login/verify-2fa - Xác nhận mã 6 số Google Authenticator
+      if (pathname === '/api/login/verify-2fa' && method === 'POST') {
+        const ip = req.socket.remoteAddress || 'unknown';
+        const guard = loginAttemptsByIp.get(ip) || { count: 0, lockUntil: 0 };
+        if (guard.lockUntil && Date.now() < guard.lockUntil) {
+          const waitSec = Math.ceil((guard.lockUntil - Date.now()) / 1000);
+          return sendJson(res, 429, {
+            error: `Tài khoản tạm khóa chống dò mã! Vui lòng thử lại sau ${waitSec} giây.`,
+          });
+        }
+
+        const body = await readJsonBody(req);
+        const tempToken = String(body.tempToken || '').trim();
+        const code = String(body.code || '').trim();
+
+        const pending = pending2faSessions.get(tempToken);
+        if (!pending || Date.now() > pending.expiresAt) {
+          pending2faSessions.delete(tempToken);
+          return sendJson(res, 401, { error: 'Phiên xác thực Google Authenticator đã hết hạn. Vui lòng đăng nhập lại!' });
+        }
+
+        const matched = db.admins.find((a) => a.id === pending.adminId);
+        if (!matched) {
+          pending2faSessions.delete(tempToken);
+          return sendJson(res, 404, { error: 'Không tìm thấy tài khoản quản trị!' });
+        }
+
+        if (!verifyTotpCode(pending.secret, code, 1)) {
+          const nextCount = guard.count + 1;
+          if (nextCount >= MAX_LOGIN_ATTEMPTS) {
+            loginAttemptsByIp.set(ip, { count: 0, lockUntil: Date.now() + LOCKOUT_MS });
+            return sendJson(res, 429, {
+              error: `Nhập sai mã Google Authenticator ${MAX_LOGIN_ATTEMPTS} lần liên tiếp! Tạm khóa 5 phút.`,
+            });
+          }
+          loginAttemptsByIp.set(ip, { count: nextCount, lockUntil: 0 });
+          return sendJson(res, 401, {
+            error: `Mã Google Authenticator không đúng hoặc đã hết hạn! (Còn ${MAX_LOGIN_ATTEMPTS - nextCount} lần thử).`,
+          });
+        }
+
+        loginAttemptsByIp.delete(ip);
+        pending2faSessions.delete(tempToken);
+
+        if (pending.mode === 'setup') {
+          matched.totpSecret = pending.secret;
+          matched.totpEnabled = true;
+          saveDatabase();
+        }
+
         const token = crypto.randomBytes(32).toString('hex');
         activeSessions.set(token, {
           adminId: matched.id,
@@ -600,6 +803,28 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, {
           ok: true,
           admins: sanitizePublicAdmins(db.admins),
+        });
+      }
+
+      // 5.5. POST /api/admins/reset-2fa - Đặt lại Google Authenticator (TK chính hoặc chính chủ)
+      if (pathname === '/api/admins/reset-2fa' && method === 'POST') {
+        const body = await readJsonBody(req);
+        const targetId = String(body.id || '').trim();
+        const target = db.admins.find((a) => a.id === targetId);
+        if (!target) return sendJson(res, 404, { error: 'Không tìm thấy tài khoản!' });
+
+        const isRootActor = auth.admin.isPrimary || auth.admin.id === 'adm_root';
+        if (!isRootActor && target.id !== auth.admin.id) {
+          return sendJson(res, 403, { error: 'Chỉ Tài khoản chính hoặc chính chủ mới được đặt lại Google Authenticator!' });
+        }
+
+        target.totpEnabled = false;
+        target.totpSecret = '';
+        saveDatabase();
+        return sendJson(res, 200, {
+          ok: true,
+          admins: sanitizePublicAdmins(db.admins),
+          currentAdmin: sanitizePublicAdmins([auth.admin])[0],
         });
       }
 
